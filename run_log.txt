@@ -1,0 +1,60 @@
+🚀 [Midas Core]: กำลังบูตระบบ (SMC State Machine)...
+==================================================
+⚡ SMC State Machine: ONLINE
+📋 Symbols: ['GOLD', 'BTCUSD', 'EURUSD', 'GBPJPY']
+==================================================
+
+🪽 [Hermes Thread]: ปลุก Hermes รอบแรก...🪽 [Hermes Thread]: ONLINE
+
+
+📡 [Hermes]: กำลังบินไปสืบข่าวจาก Forex Factory...
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_GOLD.md เรียบร้อย
+[22:16:16] [GOLD] 💤 ราคายังไม่เข้าโซน
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_BTCUSD.md เรียบร้อย
+[22:16:16] [BTCUSD] 💤 ราคายังไม่เข้าโซน
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_EURUSD.md เรียบร้อย
+
+[22:16:16] [EURUSD] 🚨 ราคาเข้า BEARISH_ZONE! ปลุก Midas ขอ Bias...
+🧠 [Midas Brain]: กำลังวิเคราะห์ตลาด...
+🔭 [Hermes]: กำลังสแกนเรดาร์ DXY, US10Y และ VIX...
+✅ [Hermes]: วางแฟ้มข่าวสำเร็จ! เข้าไปดูได้ที่ D:\Claude Workspace\Midas\Midas_Brain\raw\market_data\daily_intelligence.md
+
+==================================================
+🎯 MIDAS DECISION:
+{
+    "summary": "EURUSD: H4 Bearish vs H1 Bullish = ความไม่ตรงกัน + ข่าวแดง GBP CPI และ FOMC ใกล้ → WAIT ทันที",
+    "bias": "NEUTRAL",
+    "action": "WAIT",
+    "confidence": "LOW",
+    "score": 3,
+    "reason": "H4 Swing=BEARISH แต่ H1 Internal=BULLISH → ไม่มี Bias ชัดเจน (Rule #1: No Bias = No Trade). นอกจากนี้ GBP CPI (6:00am) และ FOMC Minutes (6:00pm) เป็นข่าวแดง HIGH IMPACT ที่จะมาในไม่กี่ชั่วโมง → ตลาดจะผันผวนรุนแรง ต้อง WAIT จนกว่าข่าวผ่านและโครงสร้างชัดเจน"
+}
+⏸️ WAIT | Score=3/10 | H4 Swing=BEARISH แต่ H1 Internal=BULLISH → ไม่มี Bias ชัดเจน (Rule #1: No Bias = No Trade). นอกจากนี้ GBP CPI (6:00am) และ FOMC Minutes (6:00pm) เป็นข่าวแดง HIGH IMPACT ที่จะมาในไม่กี่ชั่วโมง → ตลาดจะผันผวนรุนแรง ต้อง WAIT จนกว่าข่าวผ่านและโครงสร้างชัดเจน
+==================================================
+
+[EURUSD] ⏸️ โครงสร้างขัดแย้ง → รอต่อ
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_GBPJPY.md เรียบร้อย
+[22:16:20] [GBPJPY] ⛔ SKIP: H4+H1 Bias ขัดกัน
+⏳ รอสแกนรอบถัดไป (60 วินาที)...
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_GOLD.md เรียบร้อย
+[22:17:20] [GOLD] 💤 ราคายังไม่เข้าโซน
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_BTCUSD.md เรียบร้อย
+[22:17:20] [BTCUSD] 💤 ราคายังไม่เข้าโซน
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_EURUSD.md เรียบร้อย
+[22:17:20] [EURUSD] ⏳ Cooldown อีก 236 วินาที
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_GBPJPY.md เรียบร้อย
+[22:17:20] [GBPJPY] ⛔ SKIP: H4+H1 Bias ขัดกัน
+⏳ รอสแกนรอบถัดไป (60 วินาที)...
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_GOLD.md เรียบร้อย
+[22:18:20] [GOLD] 💤 ราคายังไม่เข้าโซน
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_BTCUSD.md เรียบร้อย
+[22:18:20] [BTCUSD] 💤 ราคายังไม่เข้าโซน
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_EURUSD.md เรียบร้อย
+[22:18:20] [EURUSD] ⏳ Cooldown อีก 175 วินาที
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_GBPJPY.md เรียบร้อย
+[22:18:20] [GBPJPY] ⛔ SKIP: H4+H1 Bias ขัดกัน
+⏳ รอสแกนรอบถัดไป (60 วินาที)...
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_GOLD.md เรียบร้อย
+[22:19:20] [GOLD] 💤 ราคายังไม่เข้าโซน
+✅ [Feeder]: พบ 11 ไฟล์ JSON — อัปเดต latest_data_BTCUSD.md เรียบร้อย
+[22:19:20] [BTCUSD] 💤 ราคายังไม่เข้าโซน

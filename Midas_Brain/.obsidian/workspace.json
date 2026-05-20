@@ -1,0 +1,204 @@
+{
+  "main": {
+    "id": "bb41589e9a154aed",
+    "type": "split",
+    "children": [
+      {
+        "id": "e1d62145817a4e66",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9ca7c703f6b9213d",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "bfd8b3ee8dfc9c6a",
+    "type": "split",
+    "children": [
+      {
+        "id": "4506b4c3ee1c20e6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1230d375f9229d37",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "e7fab1757908ce54",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "3fa586e8abea686a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "d6f9837a4756504f",
+    "type": "split",
+    "children": [
+      {
+        "id": "1bdb6ed70485b3b6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b2be2b0a98c3bb31",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "757c5829eac63c05",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "c06bac58fe9f47ae",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "63b07bd001a4e8ed",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "0adf9d096fbe43bc",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "9ca7c703f6b9213d",
+  "lastOpenFiles": [
+    "MIDAS_REQUIREMENTS.md.tmp.18460.3dd178877608",
+    "MIDAS_REQUIREMENTS.md.tmp.18460.aab3eb94b8ff",
+    "MIDAS_REQUIREMENTS.md.tmp.18460.e535a788dd4a",
+    "MIDAS_REQUIREMENTS.md.tmp.18460.f3d8e5b4cd1f",
+    "raw/market_data/latest_data_GBPJPY.md",
+    "raw/trades/2026-05-20.md",
+    "raw/market_data/latest_data_EURUSD.md",
+    "raw/market_data/latest_data_BTCUSD.md",
+    "raw/market_data/latest_data_GOLD.md",
+    "MIDAS_PROMPT_BLUEPRINT.md",
+    "MIDAS_REQUIREMENTS.md",
+    "Untitled.canvas",
+    "raw/market_data/latest_XAUUSD.md",
+    "raw/market_data/latest_GOLD.md",
+    "raw/market_data/latest_data.md",
+    "raw/trades/2026-05-15.md",
+    "raw/trades/2026-05-14.md",
+    "raw/market_data/daily_intelligence.md",
+    "analysis/Analysis_2026-05-14_21-11-39.md",
+    "analysis/Analysis_2026-05-14_21-07-27.md",
+    "analysis",
+    "00_Midas_Constitution.md"
+  ]
+}

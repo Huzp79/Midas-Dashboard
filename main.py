@@ -1,0 +1,306 @@
+import time
+import os
+import json
+import re
+import threading
+from datetime import datetime, timezone, timedelta, time as datetime_time
+
+import feed_midas
+import brain
+import auto_trade
+import Hermes
+import librarian
+
+print("🚀 [Midas Core]: กำลังบูตระบบ (SMC State Machine)...")
+
+SYMBOLS = ["GOLD", "BTCUSD", "EURUSD", "GBPJPY"]
+
+# ==========================================
+# 🛠️ Helper: อ่าน JSON จาก MT5
+# ==========================================
+def get_json_data(symbol, indicator, timeframe):
+    path = f"C:/Users/huzwi/AppData/Roaming/MetaQuotes/Terminal/BB16F565FAAA6B23A20C26C49416FF05/MQL5/Files/{symbol}/{indicator}_{symbol}_PERIOD_{timeframe}.json"
+    try:
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except:
+        pass
+    return None
+
+# ==========================================
+# ⏰ เช็คเวลาทำการ (Bangkok Time)
+# ==========================================
+def is_trading_time():
+    thai_tz = timezone(timedelta(hours=7))
+    now = datetime.now(thai_tz).time()
+    return datetime_time(8, 0) <= now <= datetime_time(23, 30)
+
+# ==========================================
+# 🚦 ด่านที่ 1: ราคาเข้าโซน M15 ไหม?
+# ==========================================
+def check_m15_zone(symbol):
+    data = get_json_data(symbol, "smc_state", "M15")
+    if not data:
+        return False, "NONE"
+
+    price = data.get("current_price", 0)
+    zones = data.get("zones", {})
+    BUFFER = 10
+
+    bear_ob_top = zones.get("bear_ob_top", 0)
+    bear_ob_btm = zones.get("bear_ob_btm", 0)
+    bull_ob_top = zones.get("bull_ob_top", 0)
+    bull_ob_btm = zones.get("bull_ob_btm", 0)
+
+    if bear_ob_top > 0 and (bear_ob_btm - BUFFER) <= price <= (bear_ob_top + BUFFER):
+        return True, "BEARISH_ZONE"
+    if bull_ob_top > 0 and (bull_ob_btm - BUFFER) <= price <= (bull_ob_top + BUFFER):
+        return True, "BULLISH_ZONE"
+
+    return False, "NONE"
+
+# ==========================================
+# 🚦 ด่านที่ 2: มี Sweep M5 สด ตรง Bias ไหม?
+# ==========================================
+def check_m5_sweep(bias, symbol):
+    data = get_json_data(symbol, "lq_sweep_state", "M5")
+    if not data:
+        return False
+
+    zones    = data.get("zones", {})
+    bars_ago = data.get("trigger", {}).get("bars_ago", -1)
+
+    if bars_ago == -1 or bars_ago > 3:
+        return False
+
+    if bias == "BEARISH" and zones.get("bearish_top", 0) > 0:
+        return True
+    if bias == "BULLISH" and zones.get("bullish_btm", 0) > 0:
+        return True
+
+    return False
+
+# ==========================================
+# 🚦 ด่านที่ 3: Squeeze M1 ระเบิดตรง Bias ไหม?
+# ==========================================
+def check_m1_squeeze(bias, symbol):
+    data = get_json_data(symbol, "squeeze_state", "M1")
+    if not data:
+        return False
+
+    trigger   = data.get("trigger", {})
+    is_firing = trigger.get("is_firing_now", False)
+    fire_dir  = trigger.get("fire_direction", "NONE")
+
+    return is_firing and fire_dir == bias
+
+# ==========================================
+# 🔍 Pre-Filter: H4+H1 Bias ตรงกันไหม?
+# ==========================================
+def check_h4_h1_alignment(symbol):
+    h4 = get_json_data(symbol, "smc_state", "H4")
+    h1 = get_json_data(symbol, "smc_state", "H1")
+    if not h4 or not h1:
+        return False
+    h4_trend = h4.get("structure", {}).get("swing_trend")
+    h1_trend = h1.get("structure", {}).get("swing_trend")
+    return h4_trend == h1_trend
+
+# ==========================================
+# 🪽 Hermes Background Thread
+# ==========================================
+def _hermes_background():
+    SCHEDULE = ["06:30", "13:30", "18:30"]
+    last_run = None
+    print("🪽 [Hermes Thread]: ปลุก Hermes รอบแรก...")
+    try:
+        news    = Hermes.fetch_forex_factory_news()
+        context = Hermes.fetch_market_context()
+        Hermes.write_intelligence_report(news, context)
+    except Exception as e:
+        print(f"⚠️ [Hermes Thread]: รอบแรกผิดพลาด — {e}")
+    while True:
+        now_hm = datetime.now().strftime("%H:%M")
+        key    = (datetime.now().date(), now_hm)
+        if now_hm in SCHEDULE and last_run != key:
+            print(f"⏰ [Hermes Thread]: ถึงเวลา {now_hm} — ปล่อย Hermes...")
+            try:
+                news    = Hermes.fetch_forex_factory_news()
+                context = Hermes.fetch_market_context()
+                Hermes.write_intelligence_report(news, context)
+                last_run = key
+            except Exception as e:
+                print(f"⚠️ [Hermes Thread]: {e}")
+        time.sleep(30)
+
+# ==========================================
+# 🔄 Main Loop — State Machine
+# ==========================================
+def main_loop():
+    print("="*50)
+    print("⚡ SMC State Machine: ONLINE")
+    print(f"📋 Symbols: {SYMBOLS}")
+    print("="*50 + "\n")
+
+    # เริ่ม Hermes ใน background thread
+    hermes_thread = threading.Thread(target=_hermes_background, daemon=True, name="HermesThread")
+    hermes_thread.start()
+    print("🪽 [Hermes Thread]: ONLINE\n")
+
+    # State แยกต่อ Symbol
+    states = {
+        sym: {
+            "bot_state":    "SCANNING",
+            "active_bias":  "NONE",
+            "last_h1_trend": None,
+            "daily_trades": 0,
+        }
+        for sym in SYMBOLS
+    }
+
+    MAX_DAILY_TRADES    = 5
+    today               = datetime.now().date()
+    librarian_ran_today = False
+
+    while True:
+        now_str = datetime.now().strftime('%H:%M:%S')
+
+        # รีเซ็ต Counter วันใหม่
+        if datetime.now().date() != today:
+            today               = datetime.now().date()
+            librarian_ran_today = False
+            for sym in SYMBOLS:
+                states[sym]["daily_trades"]  = 0
+                states[sym]["bot_state"]     = "SCANNING"
+                states[sym]["active_bias"]   = "NONE"
+                states[sym]["last_h1_trend"] = None
+            print(f"[{now_str}] 🌅 วันใหม่ รีเซ็ต Counter ทุก Symbol")
+
+        # รัน Librarian ทุกวันจันทร์ (weekday 0)
+        if datetime.now().weekday() == 0 and not librarian_ran_today:
+            print(f"[{now_str}] 📚 วันจันทร์ — ปลุก Librarian วิเคราะห์สัปดาห์ที่ผ่านมา...")
+            librarian.run_librarian()
+            librarian_ran_today = True
+
+        # เช็คเวลาทำการ (เหมือนกันทุก Symbol)
+        if not is_trading_time():
+            print(f"[{now_str}] 🌙 นอกเวลาทำการ — Midas พักผ่อน")
+            time.sleep(60)
+            continue
+
+        # ==========================================
+        # วนทุก Symbol
+        # ==========================================
+        for symbol in SYMBOLS:
+            st      = states[symbol]
+            now_str = datetime.now().strftime('%H:%M:%S')
+
+            # เช็ค Daily Limit ของ Symbol นี้
+            if st["daily_trades"] >= MAX_DAILY_TRADES:
+                print(f"[{now_str}] [{symbol}] 🛑 ครบ {MAX_DAILY_TRADES} ไม้แล้ว — ข้าม")
+                continue
+
+            # อัปเดตข้อมูลจาก MT5
+            feed_midas.run_feeder(symbol)
+
+            # เช็คโซน M15
+            in_zone, zone_type = check_m15_zone(symbol)
+
+            if not in_zone:
+                if st["bot_state"] != "SCANNING":
+                    print(f"[{now_str}] [{symbol}] ⚠️ ราคาหลุดโซน รีเซ็ตกลับ SCANNING")
+                    st["bot_state"]   = "SCANNING"
+                    st["active_bias"] = "NONE"
+                else:
+                    print(f"[{now_str}] [{symbol}] 💤 ราคายังไม่เข้าโซน")
+                continue
+
+            # เช็ค H4+H1 Alignment ก่อนปลุก Brain
+            if not check_h4_h1_alignment(symbol):
+                print(f"[{now_str}] [{symbol}] ⛔ SKIP: H4+H1 Bias ขัดกัน")
+                continue
+
+            # ==========================================
+            # STATE MACHINE (ต่อ Symbol)
+            # ==========================================
+
+            # STATE 1: เพิ่งเข้าโซน → ถาม Claude หา Bias
+            if st["bot_state"] == "SCANNING":
+                h1_data         = get_json_data(symbol, "smc_state", "H1")
+                current_h1_trend = h1_data.get("structure", {}).get("swing_trend") if h1_data else None
+
+                if current_h1_trend == st["last_h1_trend"]:
+                    print(f"[{now_str}] [{symbol}] ⏸️ H1 ยังเหมือนเดิม ({current_h1_trend}) — ข้ามไป")
+                    continue
+
+                print(f"\n[{now_str}] [{symbol}] 🚨 H1 เปลี่ยนเป็น {current_h1_trend}! ราคาเข้า {zone_type} ปลุก Midas...")
+                st["last_h1_trend"] = current_h1_trend
+                result = brain.think_and_trade(symbol)
+
+                if result and result != (None, None):
+                    decision, _ = result
+                    if decision:
+                        st["active_bias"] = decision.get("bias", "NONE")
+                        if st["active_bias"] in ["BULLISH", "BEARISH"]:
+                            print(f"🧠 [{symbol}] Bias = {st['active_bias']} → [ARMED]")
+                            st["bot_state"] = "ARMED"
+                        else:
+                            print(f"[{symbol}] ⏸️ โครงสร้างขัดแย้ง → รอต่อ")
+
+            # STATE 2: ได้ Bias แล้ว → รอ Sweep M5 สด
+            elif st["bot_state"] == "ARMED":
+                print(f"\n[{now_str}] [{symbol}] 🛡️ [ARMED] รอ Sweep ฝั่ง {st['active_bias']} บน M5...")
+                if check_m5_sweep(st["active_bias"], symbol):
+                    print(f"[{symbol}] 💥 พบ Sweep สด! → [READY_TO_FIRE]")
+                    st["bot_state"] = "READY_TO_FIRE"
+
+            # STATE 3: Sweep แล้ว → รอ Squeeze ระเบิด แล้วยิง
+            elif st["bot_state"] == "READY_TO_FIRE":
+                print(f"\n[{now_str}] [{symbol}] 🎯 [READY] รอ Squeeze ระเบิดทาง {st['active_bias']}...")
+
+                if check_m1_squeeze(st["active_bias"], symbol):
+                    print(f"[{symbol}] 🔥 Squeeze ระเบิด! ปลุก Midas ยืนยันและยิง...")
+                    result = brain.think_and_trade(symbol)
+
+                    if result and result != (None, None):
+                        decision, calc_data = result
+
+                        if decision is None or calc_data is None:
+                            print(f"[{symbol}] ⚠️ Brain ไม่ตอบ รีเซ็ต SCANNING")
+                            st["bot_state"]   = "SCANNING"
+                            st["active_bias"] = "NONE"
+                            continue
+
+                        action = decision.get("action", "WAIT")
+                        entry  = calc_data[0]
+                        sl     = calc_data[1]
+                        tp     = calc_data[2]
+                        reason = decision.get("reason", "")
+
+                        if action in ["BUY", "SELL"] and entry is not None:
+                            print(f"[{symbol}] 💥 [FIRE]: {action}! Entry={entry} SL={sl} TP={tp}")
+                            is_success = auto_trade.execute_mt5_order(action, symbol, 0.01, sl, tp)
+
+                            if is_success:
+                                auto_trade.send_telegram_alert(action, symbol, entry, sl, tp, reason)
+                                st["daily_trades"] += 1
+                                print(f"[{symbol}] 📊 ไม้ที่ {st['daily_trades']}/{MAX_DAILY_TRADES}")
+                                time.sleep(120)
+
+                        elif action in ["BUY", "SELL"] and entry is None:
+                            print(f"[{symbol}] 🚨 คำนวณ SL/TP ไม่ได้ — ยกเลิก")
+                        else:
+                            print(f"[{symbol}] ⏸️ Midas สั่ง WAIT วินาทีสุดท้าย")
+
+                        st["bot_state"]   = "SCANNING"
+                        st["active_bias"] = "NONE"
+
+        print(f"⏳ รอสแกนรอบถัดไป (60 วินาที)...")
+        time.sleep(60)
+
+if __name__ == "__main__":
+    try:
+        main_loop()
+    except KeyboardInterrupt:
+        print("\n🛑 ปิดระบบอย่างปลอดภัย!")
