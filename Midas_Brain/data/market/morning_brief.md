@@ -4,4 +4,4 @@
 
 ---
 
-related: [[data/market/daily_intelligence]] [[wiki/lessons/weekly_report]]
+related: [[00_Dashboard]]

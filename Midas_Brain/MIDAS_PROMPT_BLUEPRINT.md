@@ -291,3 +291,7 @@ JSON Files ที่ใช้งานจริง (11 ไฟล์):
 ---
 
 *Blueprint version 1.0 | สร้างโดย Claude Sonnet | ต่อยอดได้เลย*
+
+---
+
+related: [[00_Midas_Constitution]] [[MIDAS_REQUIREMENTS]]

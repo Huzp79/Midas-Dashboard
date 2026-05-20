@@ -170,4 +170,4 @@ Every 7 days, LIBRARIAN agent runs analysis on `raw/trades/`:
 
 ---
 
-related: [[MIDAS_REQUIREMENTS]] [[wiki/lessons/weekly_report]]
+related: [[data/market/Market_Data_Index]] [[wiki/strategies/Strategies_Index]] [[wiki/knowledge/Knowledge_Index]] [[data/journal/Journal_Index]] [[wiki/lessons/Lessons_Index]]

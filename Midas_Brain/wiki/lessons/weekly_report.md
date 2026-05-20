@@ -4,4 +4,4 @@
 
 ---
 
-related: [[00_Midas_Constitution]] [[MIDAS_REQUIREMENTS]]
+related: [[00_Midas_Constitution]] [[wiki/strategies/SMC_Core_Setup]]

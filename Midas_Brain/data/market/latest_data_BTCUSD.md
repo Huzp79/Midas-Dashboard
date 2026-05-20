@@ -39,4 +39,4 @@
 
 ---
 
-related: [[data/market/daily_intelligence]] [[data/market/morning_brief]] [[00_Midas_Constitution]]
+related: [[data/market/daily_intelligence]]
