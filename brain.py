@@ -24,8 +24,8 @@ AI_MODEL = "claude-haiku-4-5-20251001"
 # ==========================================
 BASE_DIR          = "Midas_Brain"
 CONSTITUTION_PATH = os.path.join(BASE_DIR, "00_Midas_Constitution.md")
-INTELLIGENCE_PATH  = os.path.join(BASE_DIR, "raw", "market_data", "daily_intelligence.md")
-MORNING_BRIEF_PATH = os.path.join(BASE_DIR, "raw", "market_data", "morning_brief.md")
+INTELLIGENCE_PATH  = os.path.join(BASE_DIR, "data", "market", "daily_intelligence.md")
+MORNING_BRIEF_PATH = os.path.join(BASE_DIR, "data", "market", "morning_brief.md")
 
 PRICE_FILTERS = {
     "GOLD":   100,
@@ -33,7 +33,7 @@ PRICE_FILTERS = {
     "EURUSD": 0.5,
     "GBPJPY": 100,
 }
-TRADE_LOG_DIR     = os.path.join(BASE_DIR, "raw", "trades")
+TRADE_LOG_DIR     = os.path.join(BASE_DIR, "data", "journal")
 os.makedirs(TRADE_LOG_DIR, exist_ok=True)
 
 # ==========================================
@@ -189,7 +189,7 @@ def calculate_lot_size(symbol, entry, sl):
 def think_and_trade(symbol="GOLD"):
     print("🧠 [Midas Brain]: กำลังวิเคราะห์ตลาด...")
 
-    market_data_path = os.path.join(BASE_DIR, "raw", "market_data", f"latest_data_{symbol}.md")
+    market_data_path = os.path.join(BASE_DIR, "data", "market", f"latest_data_{symbol}.md")
     constitution = read_file(CONSTITUTION_PATH)
     market_data  = read_file(market_data_path)
 
@@ -304,7 +304,7 @@ def morning_brief(symbols):
 
     sections = []
     for sym in symbols:
-        path = os.path.join(BASE_DIR, "raw", "market_data", f"latest_data_{sym}.md")
+        path = os.path.join(BASE_DIR, "data", "market", f"latest_data_{sym}.md")
         data = read_file(path)
         if data:
             sections.append(f"### [{sym}]\n{data}")
@@ -428,7 +428,7 @@ def night_watch(symbols):
     # รวมข้อมูลตลาด
     sections = []
     for sym in symbols:
-        path = os.path.join(BASE_DIR, "raw", "market_data", f"latest_data_{sym}.md")
+        path = os.path.join(BASE_DIR, "data", "market", f"latest_data_{sym}.md")
         data = read_file(path)
         if data:
             sections.append(f"### [{sym}]\n{data}")

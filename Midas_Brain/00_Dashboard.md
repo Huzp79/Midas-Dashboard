@@ -1,8 +1,26 @@
 # 🧠 Midas Central Command
 
-นี่คือคลังสมองส่วนกลาง (Knowledge Base) ของ AI Agent Midas 
+นี่คือคลังสมองส่วนกลาง (Knowledge Base) ของ AI Agent Midas
 
-* โฟลเดอร์ `raw/` : บอสมีหน้าที่เอาข้อมูลดิบมาโยนใส่ไว้ที่นี่
-* โฟลเดอร์ `wiki/` : Midas จะเอาข้อมูลไปวิเคราะห์ แล้วมาเขียนสรุปไว้ที่นี่
+---
 
-สถานะ: 🟢 พร้อมรับข้อมูลจากบอสแล้ว!
+## 📋 Core Documents
+- [[00_Midas_Constitution]] — กฎและ Framework หลักของ Midas
+- [[MIDAS_REQUIREMENTS]] — Architecture และ Next Steps ทั้งหมด
+- [[MIDAS_PROMPT_BLUEPRINT]] — Blueprint สำหรับ AI อื่น
+
+---
+
+## 📊 Live Market Data
+- [[data/market/daily_intelligence]] — ข่าวและ Macro Context รายวัน (Hermes)
+- [[data/market/morning_brief]] — Morning Brief 3 รอบต่อวัน (07:00/14:00/19:00)
+
+---
+
+## 📚 Knowledge Base
+- [[wiki/lessons/weekly_report]] — Weekly Analysis จาก Librarian
+- [[wiki/strategies/]] — Setup ที่ผ่านการทดสอบ
+
+---
+
+สถานะ: 🟢 พร้อมใช้งาน

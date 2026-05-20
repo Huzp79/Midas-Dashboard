@@ -36,3 +36,7 @@
   - 🔴 Bear OB(1.16335-1.163) FVG(1.16279-1.16256)
 - **[Squeeze]:** State=OFF | is_firing_now=False | Direction=NONE | bars_since=-1
 
+
+---
+
+related: [[data/market/daily_intelligence]] [[data/market/morning_brief]] [[00_Midas_Constitution]]

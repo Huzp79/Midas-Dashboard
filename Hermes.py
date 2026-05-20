@@ -8,7 +8,7 @@ import yfinance as yf
 # ==========================================
 # 🛠️ CONFIGURATION
 # ==========================================
-BRAIN_RAW_DIR = r"D:\Claude Workspace\Midas\Midas_Brain\raw\market_data"
+BRAIN_RAW_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Midas_Brain", "data", "market")
 INTELLIGENCE_FILE = os.path.join(BRAIN_RAW_DIR, "daily_intelligence.md")
 
 # คำต้องห้าม (Blacklist) ถ้าเจอให้ขึ้นเตือนสีแดง!

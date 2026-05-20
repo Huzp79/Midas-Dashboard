@@ -83,7 +83,7 @@ def run_feeder(symbol="GOLD"):
         market_report += "\n"
 
     # บันทึกไฟล์
-    save_dir  = "Midas_Brain/raw/market_data"
+    save_dir  = "Midas_Brain/data/market"
     save_path = os.path.join(save_dir, f"latest_data_{symbol}.md")
     os.makedirs(save_dir, exist_ok=True)
 

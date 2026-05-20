@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timedelta
 
 BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
-TRADE_LOG_DIR = os.path.join(BASE_DIR, "Midas_Brain", "raw", "trades")
+TRADE_LOG_DIR = os.path.join(BASE_DIR, "Midas_Brain", "data", "journal")
 LESSONS_DIR   = os.path.join(BASE_DIR, "Midas_Brain", "wiki", "lessons")
 REPORT_PATH   = os.path.join(LESSONS_DIR, "weekly_report.md")
 

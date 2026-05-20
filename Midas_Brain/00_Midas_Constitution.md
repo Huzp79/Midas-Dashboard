@@ -167,3 +167,7 @@ Every 7 days, LIBRARIAN agent runs analysis on `raw/trades/`:
 ---
 
 *Constitution last updated: 2026 | Next review: after 50 live trades*
+
+---
+
+related: [[MIDAS_REQUIREMENTS]] [[wiki/lessons/weekly_report]]
