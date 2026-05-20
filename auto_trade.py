@@ -10,6 +10,30 @@ load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
+MAX_SPREAD = {
+    "GOLD":   60,
+    "XAUUSD": 60,
+    "BTCUSD": 5000,
+}
+_DEFAULT_MAX_SPREAD = 40
+
+def check_spread_safe(symbol):
+    """ตรวจ Spread ปัจจุบัน: True = ปลอดภัย, False = กว้างเกินไป"""
+    if not mt5.initialize():
+        print(f"⚠️ [Spread]: MT5 ไม่ตอบสนอง — ข้ามการตรวจ Spread")
+        return True
+    info = mt5.symbol_info(symbol)
+    if info is None:
+        print(f"⚠️ [Spread]: ดึงข้อมูล {symbol} ไม่ได้ — ข้ามการตรวจ Spread")
+        return True
+    spread     = info.spread
+    max_spread = MAX_SPREAD.get(symbol, _DEFAULT_MAX_SPREAD)
+    if spread <= max_spread:
+        print(f"✅ [Spread]: {symbol} Spread={spread} ≤ {max_spread} — ปลอดภัย")
+        return True
+    print(f"🚫 [Spread]: {symbol} Spread={spread} > {max_spread} — กว้างเกินไป ยกเลิก")
+    return False
+
 def send_telegram_alert(action, symbol, entry, sl, tp, reason):
     """ส่งข้อความรายงานเจ้านายผ่าน Telegram"""
     if not TELEGRAM_TOKEN or TELEGRAM_TOKEN.startswith("ใส่_TOKEN"):

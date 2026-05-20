@@ -1,6 +1,7 @@
 import requests
 import xml.etree.ElementTree as ET
-from datetime import datetime
+import re
+from datetime import datetime, timezone, timedelta
 import os
 import yfinance as yf
 
@@ -133,6 +134,44 @@ def write_intelligence_report(news_data, context_data):
                 f.write(f"  *คาดการณ์: {news['forecast']} | ครั้งก่อน: {news['previous']}*\n\n")
 
     print(f"✅ [Hermes]: วางแฟ้มข่าวสำเร็จ! เข้าไปดูได้ที่ {INTELLIGENCE_FILE}")
+
+# ==========================================
+# 📰 ตรวจข่าวแดงใน X นาที (Bangkok Time)
+# ==========================================
+def is_high_impact_news_near(minutes=30):
+    """ตรวจว่ามีข่าว HIGH Impact ใน daily_intelligence.md ภายใน X นาที (แปลง EDT/EST→Bangkok)"""
+    if not os.path.exists(INTELLIGENCE_FILE):
+        return False
+    try:
+        with open(INTELLIGENCE_FILE, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        now_utc = datetime.now(timezone.utc)
+        # US Eastern: EDT (UTC-4) มีนาคม-พฤศจิกายน, EST (UTC-5) พฤศจิกายน-มีนาคม
+        ff_offset = timedelta(hours=-4) if 3 <= now_utc.month <= 11 else timedelta(hours=-5)
+        ff_tz     = timezone(ff_offset)
+        thai_tz   = timezone(timedelta(hours=7))
+
+        now_thai = datetime.now(thai_tz)
+        now_ff   = datetime.now(ff_tz)
+
+        matches = re.findall(r'⏰ \*\*(.+?)\*\*.*?🟥 HIGH', content)
+        for t_str in matches:
+            try:
+                news_naive = datetime.strptime(t_str.strip(), "%I:%M%p")
+                news_ff    = news_naive.replace(
+                    year=now_ff.year, month=now_ff.month, day=now_ff.day,
+                    tzinfo=ff_tz
+                )
+                news_thai  = news_ff.astimezone(thai_tz)
+                diff_min   = (news_thai - now_thai).total_seconds() / 60
+                if -5 <= diff_min <= minutes:
+                    return True
+            except:
+                continue
+    except:
+        pass
+    return False
 
 # ==========================================
 # 🚀 MAIN EXECUTION
