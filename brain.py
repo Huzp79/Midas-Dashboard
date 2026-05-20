@@ -127,7 +127,64 @@ def append_to_journal(decision_data, calc_data, symbol="GOLD"):
         f.write("-" * 40 + "\n")
 
 # ==========================================
-# 🧠 6. สมองหลัก
+# 💰 6. คำนวณ Lot Size จาก Portfolio Risk
+# ==========================================
+def calculate_lot_size(symbol, entry, sl):
+    """คำนวณ Lot Size จาก Balance จริงใน MT5 ตาม Tiered Risk %"""
+    import MetaTrader5 as mt5
+
+    try:
+        if not mt5.initialize():
+            print("⚠️ [LotCalc]: MT5 ไม่ตอบสนอง — ใช้ Lot 0.01")
+            return 0.01
+
+        acct = mt5.account_info()
+        info = mt5.symbol_info(symbol)
+        mt5.shutdown()
+
+        if not acct or not info:
+            return 0.01
+
+        balance = acct.balance
+
+        # Tiered Risk ตาม Portfolio Size
+        if balance < 200:
+            risk_pct = 1.000   # ALL IN
+        elif balance < 500:
+            risk_pct = 0.150   # 15%
+        elif balance < 1000:
+            risk_pct = 0.075   # 7.5%
+        elif balance < 3000:
+            risk_pct = 0.035   # 3.5%
+        elif balance < 5000:
+            risk_pct = 0.015   # 1.5%
+        else:
+            risk_pct = 0.0075  # 0.75%
+
+        risk_amount = balance * risk_pct
+        sl_distance = abs(entry - sl)
+        if sl_distance == 0:
+            return info.volume_min
+
+        # Dollar risk per 1 lot สำหรับ SL distance นี้
+        dollar_per_lot = (sl_distance / info.trade_tick_size) * info.trade_tick_value
+        lot = risk_amount / dollar_per_lot
+
+        # Clamp และปัดให้ตรง Broker step
+        lot = max(info.volume_min, min(info.volume_max, lot))
+        step = info.volume_step
+        lot = round(round(lot / step) * step, 8)
+
+        print(f"💰 [LotCalc]: Balance=${balance:.0f} | Risk={risk_pct*100:.3g}% | Amount=${risk_amount:.2f} | SL_dist={sl_distance:.2f} | Lot={lot}")
+        return lot
+
+    except Exception as e:
+        print(f"⚠️ [LotCalc]: {e} — ใช้ Lot 0.01")
+        return 0.01
+
+
+# ==========================================
+# 🧠 7. สมองหลัก
 # ==========================================
 def think_and_trade(symbol="GOLD"):
     print("🧠 [Midas Brain]: กำลังวิเคราะห์ตลาด...")
@@ -217,7 +274,7 @@ Output JSON เท่านั้น (ห้ามใส่ entry, sl, tp — Py
 
             if entry is not None:
                 print(f"✅ Entry={entry} | SL={sl} | TP={tp} (RR 1:{rr})")
-                lot = 0.02 if confidence == "HIGH" else 0.01
+                lot = calculate_lot_size(symbol, entry, sl)
                 is_success = execute_mt5_order(action, symbol="GOLD", lot=lot, sl=sl, tp=tp)
                 if is_success:
                     send_telegram_alert(action, "GOLD", entry, sl, tp, decision.get("reason"))
@@ -265,8 +322,9 @@ def morning_brief(symbols):
 Give a concise briefing for each symbol based on current market structure and news.
 CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
 
+    sections_str = "\n\n".join(sections)
     user_prompt = f"""[MARKET DATA]:
-{"\n\n".join(sections)}
+{sections_str}
 {intel_section}
 
 For each symbol assess bias and what to wait for before trading.

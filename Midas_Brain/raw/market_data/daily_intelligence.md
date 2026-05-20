@@ -1,25 +1,49 @@
 # 🕵️‍♂️ HERMES DAILY INTELLIGENCE REPORT
-**Date:** 2026-05-20 | **Last Updated:** 22:42:05
+**Date:** 2026-05-21 | **Last Updated:** 01:54:38
 ---
 
 ## 🌍 1. GLOBAL MARKET CONTEXT
 > **คำแนะนำ:** ใช้ข้อมูลนี้ประเมินความแข็งแกร่งของเทรนด์ก่อนตัดสินใจเข้าเทรด
 
-- **DXY (US Dollar Index):** 99.07 (-0.23%)
-- **US10Y (Bond Yield 10Y):** 4.59% (-1.69%)
-- **VIX (Fear Index):** 17.7 *(>20 = ตลาดผันผวนสูง)*
-- **GVZ (Gold Volatility):** 25.91
+- **DXY (US Dollar Index):** 99.09 (-0.21%)
+- **US10Y (Bond Yield 10Y):** 4.57% (-1.97%)
+- **VIX (Fear Index):** 17.46 *(>20 = ตลาดผันผวนสูง)*
+- **GVZ (Gold Volatility):** 25.16
 
 ---
 ## 🚨 2. ECONOMIC CALENDAR (Medium/High Impact)
 > **คำแนะนำ:** หลีกเลี่ยงการเปิดออเดอร์ใหม่ก่อนข่าวกล่องแดง 15 นาที
 
-- ⏰ **6:00am** | [GBP] 🟥 HIGH : CPI y/y ⚠️ **[CRITICAL DANGER: ระวังตลาดสวิงรุนแรง!]**
-  *คาดการณ์: 3.0% | ครั้งก่อน: 3.3%*
+- ⏰ **7:15am** | [EUR] 🟧 MEDIUM : French Flash Manufacturing PMI
+  *คาดการณ์: 52.1 | ครั้งก่อน: 52.8*
 
-- ⏰ **1:15pm** | [GBP] 🟧 MEDIUM : Monetary Policy Report Hearings
-  *คาดการณ์: None | ครั้งก่อน: None*
+- ⏰ **7:15am** | [EUR] 🟧 MEDIUM : French Flash Services PMI
+  *คาดการณ์: 46.6 | ครั้งก่อน: 46.5*
 
-- ⏰ **6:00pm** | [USD] 🟥 HIGH : FOMC Meeting Minutes ⚠️ **[CRITICAL DANGER: ระวังตลาดสวิงรุนแรง!]**
+- ⏰ **7:30am** | [EUR] 🟧 MEDIUM : German Flash Manufacturing PMI
+  *คาดการณ์: 51.0 | ครั้งก่อน: 51.2*
+
+- ⏰ **7:30am** | [EUR] 🟧 MEDIUM : German Flash Services PMI
+  *คาดการณ์: 47.1 | ครั้งก่อน: 46.9*
+
+- ⏰ **8:30am** | [GBP] 🟧 MEDIUM : Flash Manufacturing PMI
+  *คาดการณ์: 52.9 | ครั้งก่อน: 53.6*
+
+- ⏰ **8:30am** | [GBP] 🟧 MEDIUM : Flash Services PMI
+  *คาดการณ์: 51.7 | ครั้งก่อน: 52.0*
+
+- ⏰ **12:30pm** | [USD] 🟧 MEDIUM : Philly Fed Manufacturing Index
+  *คาดการณ์: 17.6 | ครั้งก่อน: 26.7*
+
+- ⏰ **12:30pm** | [USD] 🟧 MEDIUM : Unemployment Claims
+  *คาดการณ์: 210K | ครั้งก่อน: 211K*
+
+- ⏰ **1:45pm** | [USD] 🟧 MEDIUM : Flash Manufacturing PMI
+  *คาดการณ์: 53.8 | ครั้งก่อน: 54.0*
+
+- ⏰ **1:45pm** | [USD] 🟧 MEDIUM : Flash Services PMI
+  *คาดการณ์: 51.1 | ครั้งก่อน: 51.3*
+
+- ⏰ **3:00pm** | [GBP] 🟥 HIGH : BOE Gov Bailey Speaks
   *คาดการณ์: None | ครั้งก่อน: None*
 
