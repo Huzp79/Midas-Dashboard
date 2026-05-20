@@ -144,8 +144,13 @@ def _check_invalidation(st, symbol, now_str):
 # 🪽 Hermes Background Thread
 # ==========================================
 def _hermes_background():
-    SCHEDULE = ["06:30", "13:30", "18:30"]
-    last_run = None
+    HERMES_SCHEDULE      = ["06:30", "13:30", "18:30"]
+    BRIEF_SCHEDULE       = ["07:00", "14:00", "19:00"]
+    NIGHT_WATCH_SCHEDULE = ["00:00", "02:00"]
+    hermes_last_run      = None
+    brief_last_run       = None
+    night_watch_last_run = None
+
     print("🪽 [Hermes Thread]: ปลุก Hermes รอบแรก...")
     try:
         news    = Hermes.fetch_forex_factory_news()
@@ -153,18 +158,93 @@ def _hermes_background():
         Hermes.write_intelligence_report(news, context)
     except Exception as e:
         print(f"⚠️ [Hermes Thread]: รอบแรกผิดพลาด — {e}")
+
     while True:
         now_hm = datetime.now().strftime("%H:%M")
         key    = (datetime.now().date(), now_hm)
-        if now_hm in SCHEDULE and last_run != key:
+
+        # Hermes schedule (ข่าว + Macro)
+        if now_hm in HERMES_SCHEDULE and hermes_last_run != key:
             print(f"⏰ [Hermes Thread]: ถึงเวลา {now_hm} — ปล่อย Hermes...")
             try:
                 news    = Hermes.fetch_forex_factory_news()
                 context = Hermes.fetch_market_context()
                 Hermes.write_intelligence_report(news, context)
-                last_run = key
+                hermes_last_run = key
             except Exception as e:
                 print(f"⚠️ [Hermes Thread]: {e}")
+
+        # Morning Brief schedule (วิเคราะห์ตลาด + Telegram)
+        if now_hm in BRIEF_SCHEDULE and brief_last_run != key:
+            print(f"🌅 [Hermes Thread]: ถึงเวลา {now_hm} — สร้าง Morning Brief...")
+            try:
+                msg = brain.morning_brief(SYMBOLS)
+                if msg:
+                    auto_trade.send_telegram_message(msg)
+                brief_last_run = key
+            except Exception as e:
+                print(f"⚠️ [Brief]: {e}")
+
+        # Night Watch schedule (ดูแลไม้กลางคืน)
+        if now_hm in NIGHT_WATCH_SCHEDULE and night_watch_last_run != key:
+            is_final = (now_hm == "02:00")
+            label    = "FINAL" if is_final else "Round 1"
+            print(f"🌙 [Night Watch]: {label} ({now_hm}) — ตรวจ Open Positions...")
+            try:
+                nw_result = brain.night_watch(SYMBOLS)
+
+                if not nw_result:
+                    msg = f"🌙 Night Watch {label}: ไม่มีไม้เปิดอยู่"
+                    if is_final:
+                        msg += " — Midas Idle จนถึง 07:00"
+                    auto_trade.send_telegram_message(msg)
+
+                elif not is_final:
+                    # Round 1: รายงานสรุปเท่านั้น ไม่ดำเนินการ
+                    lines = [f"🌙 Night Watch R1 ({now_hm}) — {len(nw_result)} ไม้:"]
+                    for ticket, info in nw_result.items():
+                        lines.append(
+                            f"• #{ticket} {info.get('symbol')} | "
+                            f"Action={info.get('action')} | "
+                            f"P&L={info.get('profit', 0):.2f}"
+                        )
+                    auto_trade.send_telegram_message("\n".join(lines))
+
+                else:
+                    # Round 2 FINAL: ดำเนินการตาม Action
+                    for ticket_str, info in nw_result.items():
+                        ticket   = int(ticket_str)
+                        action   = info.get("action", "D")
+                        symbol   = info.get("symbol", "")
+                        profit   = info.get("profit", 0)
+                        reason   = info.get("reason", "")
+                        volume   = info.get("volume", 0.01)
+                        pos_type = info.get("pos_type", 0)
+
+                        if action in ["B", "C"]:
+                            print(f"🌙 [Night Watch]: ปิดไม้ #{ticket} ({action}) — {reason}")
+                            closed = auto_trade.close_mt5_position(ticket, symbol, volume, pos_type)
+                            icon   = "✅" if closed else "❌"
+                            auto_trade.send_telegram_message(
+                                f"{icon} Night Watch ปิดไม้: {symbol} #{ticket}\n"
+                                f"Action={action} | P&L={profit:.2f}\n"
+                                f"เหตุผล: {reason}"
+                            )
+                        elif action == "D":
+                            print(f"🌙 [Night Watch]: แจ้งเจ้าของ #{ticket} — {reason}")
+                            auto_trade.send_telegram_message(
+                                f"⚠️ Night Watch แจ้งเตือน: {symbol} #{ticket}\n"
+                                f"P&L={profit:.2f} | โครงสร้างยังดี\n"
+                                f"เหตุผล: {reason}\n"
+                                f"รอการตัดสินใจจากเจ้าของ"
+                            )
+                        else:  # A = HOLD
+                            print(f"🌙 [Night Watch]: ถือต่อ #{ticket} {symbol} — {reason}")
+
+                night_watch_last_run = key
+            except Exception as e:
+                print(f"⚠️ [Night Watch]: {e}")
+
         time.sleep(30)
 
 # ==========================================

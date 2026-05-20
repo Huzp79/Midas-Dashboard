@@ -24,7 +24,8 @@ AI_MODEL = "claude-haiku-4-5-20251001"
 # ==========================================
 BASE_DIR          = "Midas_Brain"
 CONSTITUTION_PATH = os.path.join(BASE_DIR, "00_Midas_Constitution.md")
-INTELLIGENCE_PATH = os.path.join(BASE_DIR, "raw", "market_data", "daily_intelligence.md")
+INTELLIGENCE_PATH  = os.path.join(BASE_DIR, "raw", "market_data", "daily_intelligence.md")
+MORNING_BRIEF_PATH = os.path.join(BASE_DIR, "raw", "market_data", "morning_brief.md")
 
 PRICE_FILTERS = {
     "GOLD":   100,
@@ -236,6 +237,205 @@ Output JSON เท่านั้น (ห้ามใส่ entry, sl, tp — Py
     except Exception as e:
         print(f"❌ สมองมีปัญหา: {e}")
         return None, None
+
+# ==========================================
+# 🌅 Morning Brief (ทุก Symbol พร้อมกัน)
+# ==========================================
+def morning_brief(symbols):
+    """วิเคราะห์ทุก Symbol ในครั้งเดียว — คืน string สำหรับ Telegram"""
+    print("🌅 [Morning Brief]: รวบรวมข้อมูลทุก Symbol...")
+
+    sections = []
+    for sym in symbols:
+        path = os.path.join(BASE_DIR, "raw", "market_data", f"latest_data_{sym}.md")
+        data = read_file(path)
+        if data:
+            sections.append(f"### [{sym}]\n{data}")
+
+    if not sections:
+        print("⚠️ [Morning Brief]: ไม่มีข้อมูลตลาด ยกเลิก")
+        return None
+
+    intelligence  = read_file(INTELLIGENCE_PATH)
+    intel_section = f"\n[HERMES INTELLIGENCE]:\n{intelligence}" if intelligence else ""
+
+    sym_lines = "\n".join(f'  "{s}": {{"bias": "BULLISH|BEARISH|WAIT", "wait_for": "...", "note": "..."}},' for s in symbols)
+
+    system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC.
+Give a concise briefing for each symbol based on current market structure and news.
+CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
+
+    user_prompt = f"""[MARKET DATA]:
+{"\n\n".join(sections)}
+{intel_section}
+
+For each symbol assess bias and what to wait for before trading.
+Output ONLY this JSON (fill values, remove placeholder text):
+{{
+{sym_lines}
+}}"""
+
+    try:
+        response = client.messages.create(
+            model=AI_MODEL,
+            max_tokens=600,
+            temperature=0.1,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}]
+        )
+
+        raw   = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
+        brief = json.loads(raw)
+
+        # บันทึก markdown
+        time_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+        with open(MORNING_BRIEF_PATH, "w", encoding="utf-8") as f:
+            f.write(f"# 🌅 MIDAS MORNING BRIEF\n**{time_str} (BKK)**\n\n")
+            for sym, info in brief.items():
+                f.write(f"## {sym}\n")
+                f.write(f"- **Bias:** {info.get('bias', 'N/A')}\n")
+                f.write(f"- **รอ:** {info.get('wait_for', '-')}\n")
+                if info.get("note"):
+                    f.write(f"- **Note:** {info['note']}\n")
+                f.write("\n")
+
+        # สร้าง Telegram message
+        hm  = datetime.now().strftime("%H:%M")
+        lines = [f"🌅 MIDAS BRIEF {hm} (BKK)"]
+        for sym, info in brief.items():
+            bias     = info.get("bias", "N/A")
+            wait_for = info.get("wait_for", "")
+            note     = info.get("note", "")
+            icon     = "🟢" if bias == "BULLISH" else "🔴" if bias == "BEARISH" else "⚪"
+            line     = f"{icon} {sym}: {bias}"
+            if wait_for and wait_for not in ("-", "..."):
+                line += f" | {wait_for}"
+            if note and note not in ("-", "..."):
+                line += f" ({note})"
+            lines.append(line)
+
+        print(f"✅ [Morning Brief]: เสร็จแล้ว")
+        return "\n".join(lines)
+
+    except json.JSONDecodeError:
+        print(f"❌ [Morning Brief]: JSON ผิดรูปแบบ:\n{raw}")
+        return None
+    except Exception as e:
+        print(f"❌ [Morning Brief]: {e}")
+        return None
+
+
+# ==========================================
+# 🌙 Night Watch (ตรวจ Open Positions)
+# ==========================================
+def night_watch(symbols):
+    """ประเมิน Open Positions ทั้งหมด — return dict by ticket string"""
+    import MetaTrader5 as mt5
+
+    print("🌙 [Night Watch]: ตรวจสอบ Open Positions...")
+
+    if not mt5.initialize():
+        print("⚠️ [Night Watch]: MT5 ไม่ตอบสนอง")
+        return {}
+
+    raw_positions = mt5.positions_get()
+    if not raw_positions:
+        print("🌙 [Night Watch]: ไม่มีไม้เปิดอยู่")
+        mt5.shutdown()
+        return {}
+
+    # เก็บ metadata ไว้ Enrich ผล Claude ทีหลัง
+    pos_meta = {}
+    pos_list = []
+    for pos in raw_positions:
+        pos_meta[str(pos.ticket)] = {
+            "symbol":   pos.symbol,
+            "pos_type": pos.type,          # 0=BUY, 1=SELL
+            "volume":   pos.volume,
+            "profit":   round(pos.profit, 2),
+        }
+        pos_list.append({
+            "ticket":     pos.ticket,
+            "symbol":     pos.symbol,
+            "type":       "BUY" if pos.type == 0 else "SELL",
+            "volume":     pos.volume,
+            "open_price": round(pos.price_open, 5),
+            "current":    round(pos.price_current, 5),
+            "profit":     round(pos.profit, 2),
+            "sl":         pos.sl,
+            "tp":         pos.tp,
+        })
+    mt5.shutdown()
+
+    # รวมข้อมูลตลาด
+    sections = []
+    for sym in symbols:
+        path = os.path.join(BASE_DIR, "raw", "market_data", f"latest_data_{sym}.md")
+        data = read_file(path)
+        if data:
+            sections.append(f"### [{sym}]\n{data}")
+
+    pos_json_str    = json.dumps(pos_list, indent=2, ensure_ascii=False)
+    market_str      = "\n\n".join(sections) if sections else "ไม่มีข้อมูลตลาด"
+    expected_entries = "\n".join(
+        f'  "{t}": {{"action": "A|B|C|D", "reason": "เหตุผลสั้นๆ ภาษาไทย"}},'
+        for t in pos_meta
+    )
+
+    system_prompt = """You are MIDAS Night Watch, monitoring open trading positions overnight.
+Assess each position and decide:
+A = HOLD (profitable + structure intact + safe overnight)
+B = CLOSE (break-even/small profit + unclear or weakening structure)
+C = CLOSE (losing + structure broken or reversed)
+D = ALERT_OWNER (losing but structure still valid — let owner decide)
+CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
+
+    user_prompt = f"""[OPEN POSITIONS]:
+{pos_json_str}
+
+[CURRENT MARKET STRUCTURE]:
+{market_str}
+
+Assess each position. Output JSON with one entry per ticket:
+{{
+{expected_entries}
+}}"""
+
+    try:
+        response = client.messages.create(
+            model=AI_MODEL,
+            max_tokens=500,
+            temperature=0.1,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}]
+        )
+
+        raw    = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
+        result = json.loads(raw)
+
+        # Enrich ด้วย position metadata จาก MT5
+        enriched = {}
+        for ticket_str, info in result.items():
+            meta = pos_meta.get(ticket_str, {})
+            enriched[ticket_str] = {
+                "action":   info.get("action", "D"),
+                "symbol":   meta.get("symbol", ""),
+                "pos_type": meta.get("pos_type", 0),
+                "volume":   meta.get("volume", 0.01),
+                "profit":   meta.get("profit", 0),
+                "reason":   info.get("reason", ""),
+            }
+
+        print(f"✅ [Night Watch]: วิเคราะห์ {len(enriched)} ไม้เสร็จแล้ว")
+        return enriched
+
+    except json.JSONDecodeError:
+        print(f"❌ [Night Watch]: JSON ผิดรูปแบบ")
+        return {}
+    except Exception as e:
+        print(f"❌ [Night Watch]: {e}")
+        return {}
+
 
 if __name__ == "__main__":
     think_and_trade()

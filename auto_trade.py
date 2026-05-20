@@ -54,6 +54,49 @@ def send_telegram_alert(action, symbol, entry, sl, tp, reason):
     except Exception as e:
         print(f"❌ ส่ง Telegram ไม่สำเร็จ: {e}")
 
+def send_telegram_message(text):
+    """ส่งข้อความธรรมดา (ไม่ใช่ Trade Alert) ผ่าน Telegram"""
+    if not TELEGRAM_TOKEN or TELEGRAM_TOKEN.startswith("ใส่_TOKEN"):
+        print("⚠️ ข้ามการส่ง Telegram (ยังไม่ได้ใส่ Token)")
+        return
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    try:
+        requests.post(url, data={"chat_id": CHAT_ID, "text": text})
+        print("📲 ส่ง Telegram Message เรียบร้อย!")
+    except Exception as e:
+        print(f"❌ ส่ง Telegram ไม่สำเร็จ: {e}")
+
+def close_mt5_position(ticket, symbol, volume, pos_type):
+    """ปิด Position ด้วย Ticket number (pos_type: 0=BUY, 1=SELL)"""
+    if not mt5.initialize():
+        print(f"❌ [Close]: MT5 ไม่ตอบสนอง")
+        return False
+    tick = mt5.symbol_info_tick(symbol)
+    if not tick:
+        print(f"❌ [Close]: ดึงราคา {symbol} ไม่ได้")
+        return False
+    close_price = tick.bid if pos_type == 0 else tick.ask
+    close_type  = mt5.ORDER_TYPE_SELL if pos_type == 0 else mt5.ORDER_TYPE_BUY
+    request = {
+        "action":       mt5.TRADE_ACTION_DEAL,
+        "symbol":       symbol,
+        "volume":       float(volume),
+        "type":         close_type,
+        "position":     ticket,
+        "price":        close_price,
+        "deviation":    20,
+        "magic":        777777,
+        "comment":      "Midas Night Watch",
+        "type_time":    mt5.ORDER_TIME_GTC,
+        "type_filling": mt5.ORDER_FILLING_IOC,
+    }
+    result = mt5.order_send(request)
+    if result.retcode != mt5.TRADE_RETCODE_DONE:
+        print(f"❌ [Close]: ปิดไม้ #{ticket} ไม่สำเร็จ — {result.comment}")
+        return False
+    print(f"✅ [Close]: ปิดไม้ #{ticket} {symbol} สำเร็จ")
+    return True
+
 def execute_mt5_order(action, symbol="GOLD", lot=0.01, sl=0.0, tp=0.0):
     """มือปืนลั่นไกใน MT5"""
     # 1. เชื่อมต่อ MT5
