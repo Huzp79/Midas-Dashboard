@@ -580,10 +580,18 @@ def main_loop():
                         st["active_bias"]     = "NONE"
                         st["watch_checklist"] = None
                         continue
-                    lot        = brain.calculate_lot_size(symbol, entry, sl)
-                    is_success = auto_trade.execute_mt5_order(action, symbol, lot, sl, tp)
+                    lot                      = brain.calculate_lot_size(symbol, entry, sl)
+                    is_success, actual_entry = auto_trade.execute_mt5_order(action, symbol, lot, sl, tp)
                     if is_success:
-                        auto_trade.send_telegram_alert(action, symbol, entry, sl, tp, decision.get("reason"))
+                        fill_price = actual_entry or entry
+                        auto_trade.send_telegram_alert(action, symbol, fill_price, sl, tp, decision.get("reason"))
+                        try:
+                            today_j = datetime.now().strftime("%Y-%m-%d")
+                            j_path  = os.path.join("Midas_Brain", "data", "journal", f"{today_j}.md")
+                            with open(j_path, "a", encoding="utf-8-sig") as f:
+                                f.write(f"**Actual Fill:** {fill_price}\n")
+                        except Exception:
+                            pass
                         ticket = get_latest_ticket(symbol)
                         st["open_ticket"]   = ticket
                         st["daily_trades"] += 1

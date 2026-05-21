@@ -163,45 +163,50 @@ def get_closed_trade_result(ticket):
         return None
 
 def execute_mt5_order(action, symbol="GOLD", lot=0.01, sl=0.0, tp=0.0):
-    """มือปืนลั่นไกใน MT5"""
-    # 1. เชื่อมต่อ MT5
+    """มือปืนลั่นไกใน MT5 — Return (True, actual_entry) หรือ (False, None)"""
     if not mt5.initialize():
         print("❌ เชื่อมต่อ MT5 ไม่สำเร็จ! เปิดโปรแกรม MT5 ไว้หรือเปล่า?")
-        return False
+        return (False, None)
 
     print(f"🔫 [HITMAN]: กำลังเตรียมลั่นไก {action} {lot} Lot...")
 
-    # 2. ดึงราคาปัจจุบัน (Ask สำหรับ Buy, Bid สำหรับ Sell)
     tick = mt5.symbol_info_tick(symbol)
     if tick is None:
         print("❌ ดึงราคาไม่สำเร็จ! ชื่อคู่เงินถูกไหม?")
-        return False
-        
-    price = tick.ask if action == "BUY" else tick.bid
+        mt5.shutdown()
+        return (False, None)
+
+    price      = tick.ask if action == "BUY" else tick.bid
     order_type = mt5.ORDER_TYPE_BUY if action == "BUY" else mt5.ORDER_TYPE_SELL
 
-    # 3. ประกอบร่างคำสั่งยิง
     request = {
-        "action": mt5.TRADE_ACTION_DEAL,
-        "symbol": symbol,
-        "volume": float(lot),
-        "type": order_type,
-        "price": price,
-        "sl": float(sl) if sl else 0.0,
-        "tp": float(tp) if tp else 0.0,
-        "deviation": 20, # ยอมให้ราคาคลาดเคลื่อนได้ 20 จุด
-        "magic": 777777, # เลขประจำตัวบอท
-        "comment": "Midas Sniper AI",
-        "type_time": mt5.ORDER_TIME_GTC,
+        "action":       mt5.TRADE_ACTION_DEAL,
+        "symbol":       symbol,
+        "volume":       float(lot),
+        "type":         order_type,
+        "price":        price,
+        "sl":           float(sl) if sl else 0.0,
+        "tp":           float(tp) if tp else 0.0,
+        "deviation":    20,
+        "magic":        777777,
+        "comment":      "Midas Sniper AI",
+        "type_time":    mt5.ORDER_TIME_GTC,
         "type_filling": mt5.ORDER_FILLING_IOC,
     }
 
-    # 4. ลั่นไก!
     result = mt5.order_send(request)
-    
+
     if result.retcode != mt5.TRADE_RETCODE_DONE:
         print(f"❌ ยิงออเดอร์พลาด! MT5 แจ้ง Error: {result.comment} (Code: {result.retcode})")
-        return False
+        mt5.shutdown()
+        return (False, None)
 
-    print(f"✅ ยิงเข้าเป้า! เปิดออเดอร์ {action} สำเร็จ (Ticket: {result.order})")
-    return True
+    # ดึง actual fill price — ใช้ result.price ก่อน ถ้าเป็น 0 ให้ดึงจาก position
+    actual_entry = result.price
+    if not actual_entry:
+        pos = mt5.positions_get(ticket=result.order)
+        actual_entry = pos[0].price_open if pos else 0
+
+    mt5.shutdown()
+    print(f"✅ ยิงเข้าเป้า! {action} สำเร็จ (Ticket: {result.order}) @ {actual_entry}")
+    return (True, actual_entry)
