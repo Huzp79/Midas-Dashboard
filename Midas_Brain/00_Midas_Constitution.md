@@ -131,9 +131,35 @@ Notes: [What happened? Did market respect the setup?]
 
 ---
 
+## INDICATOR PHILOSOPHY
+
+Indicator คือเครื่องมือช่วยอ่าน ไม่ใช่ตัวตัดสิน
+
+**1. SMC God Eye ใช้อ่านโครงสร้างภาพรวมเท่านั้น**
+- BOS และ CHoCH ใน HTF (H4/H1) คือสัญญาณสำคัญ
+- iCHoCH และ iBOS ใน LTF (M30 ลงไป) คือ Noise ภายใน Trend
+- ห้ามให้ iCHoCH ใน LTF เปลี่ยน Bias ของ HTF
+
+**2. Bias มาจากโครงสร้างจริงๆ ไม่ใช่จาก Indicator**
+- H4 BOS ลง = Bearish แม้ H1 จะมี iCHoCH ขึ้น
+- H4 BOS ขึ้น = Bullish แม้ H1 จะมี iCHoCH ลง
+- iCHoCH ใน H1 ภายใน H4 Downtrend = Pullback ไม่ใช่ Reversal
+
+**3. Indicator อื่นๆ ทำหน้าที่ยืนยันเท่านั้น**
+- LQ Sweep → ยืนยันว่า Sweep เกิดจริง
+- MACD → ยืนยัน Momentum
+- Squeeze → ยืนยัน Timing ก่อนเข้า
+- Volume Profile → ยืนยัน Conviction
+
+**4. Claude ต้องคิดแบบเทรดเดอร์ SMC ไม่ใช่อ่าน Indicator ตรงๆ**
+- ถามตัวเองว่า "ภาพรวมตลาดเป็นยังไง?" ไม่ใช่ "Indicator บอกอะไร?"
+- ถ้าโครงสร้าง HTF ชัดแล้ว Indicator แค่ช่วย Timing เท่านั้น
+
+---
+
 ## ABSOLUTE RULES (never break)
 
-1. **No Bias = No Trade.** If H4 and H1 disagree → wait.
+1. **No Bias = No Trade.** Bias มาจาก H4 Structure เป็นหลัก iCHoCH ใน H1 ภายใน H4 Trend ไม่ถือว่า Disagree คือ Pullback ปกติ
 2. **No Sweep = No Entry.** Never enter before LQ is swept.
 3. **Respect the Score.** Below 7 → skip, always.
 4. **After 3% daily loss → SHUTDOWN.** Log it. Resume tomorrow.

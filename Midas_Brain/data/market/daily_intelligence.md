@@ -1,13 +1,13 @@
 # 🕵️‍♂️ HERMES DAILY INTELLIGENCE REPORT
-**Date:** 2026-05-21 | **Last Updated:** 02:33:31
+**Date:** 2026-05-21 | **Last Updated:** 13:30:13
 ---
 
 ## 🌍 1. GLOBAL MARKET CONTEXT
 > **คำแนะนำ:** ใช้ข้อมูลนี้ประเมินความแข็งแกร่งของเทรนด์ก่อนตัดสินใจเข้าเทรด
 
-- **DXY (US Dollar Index):** 99.08 (-0.22%)
+- **DXY (US Dollar Index):** 99.18 (0.07%)
 - **US10Y (Bond Yield 10Y):** 4.57% (-2.04%)
-- **VIX (Fear Index):** 17.45 *(>20 = ตลาดผันผวนสูง)*
+- **VIX (Fear Index):** 17.44 *(>20 = ตลาดผันผวนสูง)*
 - **GVZ (Gold Volatility):** 25.17
 
 ---
@@ -47,6 +47,3 @@
 - ⏰ **3:00pm** | [GBP] 🟥 HIGH : BOE Gov Bailey Speaks
   *คาดการณ์: None | ครั้งก่อน: None*
 
----
-
-related: [[data/market/morning_brief]]
