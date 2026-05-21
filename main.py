@@ -88,11 +88,22 @@ def check_m1_squeeze(bias, symbol):
     if not data:
         return False
 
-    trigger   = data.get("trigger", {})
-    is_firing = trigger.get("is_firing_now", False)
-    fire_dir  = trigger.get("fire_direction", "NONE")
+    trigger       = data.get("trigger", {})
+    is_firing     = trigger.get("is_firing_now", False)
+    fire_dir      = trigger.get("fire_direction", "NONE")
+    squeeze_state = data.get("squeeze_state", "ON")
+    momentum      = data.get("momentum", 0)
 
-    return is_firing and fire_dir == bias
+    if is_firing and fire_dir == bias:
+        return True
+
+    if squeeze_state == "OFF":
+        if bias == "BEARISH" and momentum < 0:
+            return True
+        if bias == "BULLISH" and momentum > 0:
+            return True
+
+    return False
 
 # ==========================================
 # 🔍 Pre-Filter: H4+H1 Bias ตรงกันไหม?
