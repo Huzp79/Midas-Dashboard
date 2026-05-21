@@ -36,120 +36,173 @@ def is_trading_time():
     return datetime_time(8, 0) <= now <= datetime_time(23, 30)
 
 # ==========================================
-# 🚦 ด่านที่ 1: ราคาเข้าโซน M15 ไหม?
+# 🗺️ อ่าน Entry Zone จาก Morning Brief
 # ==========================================
-def check_m15_zone(symbol):
-    data = get_json_data(symbol, "smc_state", "M15")
-    if not data:
-        return False, "NONE"
+MORNING_BRIEF_JSON = os.path.join("Midas_Brain", "data", "market", "morning_brief.json")
 
-    price = data.get("current_price", 0)
-    zones = data.get("zones", {})
-    BUFFER = 10
+def read_morning_brief_zone(symbol):
+    try:
+        if os.path.exists(MORNING_BRIEF_JSON):
+            with open(MORNING_BRIEF_JSON, "r", encoding="utf-8") as f:
+                brief = json.load(f)
+            info = brief.get(symbol, {})
+            bias = info.get("bias", "WAIT")
+            if bias == "WAIT":
+                return None
+            ez_top = float(info.get("entry_zone_top") or 0)
+            ez_btm = float(info.get("entry_zone_btm") or 0)
+            if ez_top == 0 or ez_btm == 0:
+                return None
+            return {
+                "bias":                bias,
+                "entry_zone_top":      ez_top,
+                "entry_zone_btm":      ez_btm,
+                "invalidate_if_above": float(info.get("invalidate_if_above") or 0),
+            }
+    except Exception as e:
+        print(f"⚠️ [MorningBrief Zone]: {e}")
+    return None
 
-    bear_ob_top = zones.get("bear_ob_top", 0)
-    bear_ob_btm = zones.get("bear_ob_btm", 0)
-    bull_ob_top = zones.get("bull_ob_top", 0)
-    bull_ob_btm = zones.get("bull_ob_btm", 0)
-
-    if bear_ob_top > 0 and (bear_ob_btm - BUFFER) <= price <= (bear_ob_top + BUFFER):
-        return True, "BEARISH_ZONE"
-    if bull_ob_top > 0 and (bull_ob_btm - BUFFER) <= price <= (bull_ob_top + BUFFER):
-        return True, "BULLISH_ZONE"
-
-    return False, "NONE"
-
-# ==========================================
-# 🚦 ด่านที่ 2: มี Sweep M5 สด ตรง Bias ไหม?
-# ==========================================
-def check_m5_sweep(bias, symbol):
-    data = get_json_data(symbol, "lq_sweep_state", "M5")
-    if not data:
-        return False
-
-    zones    = data.get("zones", {})
-    bars_ago = data.get("trigger", {}).get("bars_ago", -1)
-
-    if bars_ago == -1 or bars_ago > 3:
-        return False
-
-    if bias == "BEARISH" and zones.get("bearish_top", 0) > 0:
-        return True
-    if bias == "BULLISH" and zones.get("bullish_btm", 0) > 0:
-        return True
-
-    return False
 
 # ==========================================
-# 🚦 ด่านที่ 3: Squeeze M1 ระเบิดตรง Bias ไหม?
+# 👁️ STATE 2: เช็ค Watching Conditions
 # ==========================================
-def check_m1_squeeze(bias, symbol):
-    data = get_json_data(symbol, "squeeze_state", "M1")
-    if not data:
-        return False
+def check_watching_conditions(st, symbol):
+    checklist = (st.get("watch_checklist") or {}).get("watch_for", {})
+    bias      = st.get("active_bias", "NONE")
+    results   = {}
 
-    trigger       = data.get("trigger", {})
-    is_firing     = trigger.get("is_firing_now", False)
-    fire_dir      = trigger.get("fire_direction", "NONE")
-    squeeze_state = data.get("squeeze_state", "ON")
-    momentum      = data.get("momentum", 0)
+    # Sweep (M5)
+    if checklist.get("sweep", True):
+        data     = get_json_data(symbol, "lq_sweep_state", "M5")
+        bars_ago = (data or {}).get("trigger", {}).get("bars_ago", -1)
+        zones    = (data or {}).get("zones", {})
+        has_dir  = (bias == "BEARISH" and zones.get("bearish_top", 0) > 0) or \
+                   (bias == "BULLISH" and zones.get("bullish_btm", 0) > 0)
+        results["sweep"] = (0 <= bars_ago <= 3) and has_dir
 
-    if is_firing and fire_dir == bias:
-        return True
+    # Squeeze OFF + Momentum ตรง Bias (M1)
+    if checklist.get("squeeze_off", True):
+        data     = get_json_data(symbol, "squeeze_state", "M1")
+        sqstate  = (data or {}).get("squeeze_state", "ON")
+        momentum = float((data or {}).get("momentum", 0))
+        results["squeeze_off"] = sqstate == "OFF" and (
+            (bias == "BEARISH" and momentum < 0) or
+            (bias == "BULLISH" and momentum > 0)
+        )
 
-    if squeeze_state == "OFF":
-        if bias == "BEARISH" and momentum < 0:
+    # Histogram darkening (momentum เคลื่อนทิศทาง Bias มากขึ้น)
+    if checklist.get("histogram_dark", True):
+        data     = get_json_data(symbol, "squeeze_state", "M1")
+        momentum = float((data or {}).get("momentum", 0))
+        prev     = st.get("prev_momentum", momentum)
+        results["histogram_dark"] = (
+            (bias == "BEARISH" and momentum < prev) or
+            (bias == "BULLISH" and momentum > prev)
+        )
+        st["prev_momentum"] = momentum
+
+    all_met = bool(results) and all(results.values())
+    return all_met, results
+
+
+# ==========================================
+# 🚨 STATE 2: เช็ค Invalidation
+# ==========================================
+def check_invalidation_watching(st, symbol):
+    data  = get_json_data(symbol, "smc_state", "M15")
+    price = (data or {}).get("current_price", 0)
+    bias  = st.get("active_bias", "NONE")
+    inv   = st.get("invalidate_if_above", 0)
+
+    if price and inv > 0:
+        if bias == "BEARISH" and price > inv:
+            return True, f"ราคา ({price}) เกิน Invalidation ({inv})"
+        if bias == "BULLISH" and price < inv:
+            return True, f"ราคา ({price}) ต่ำกว่า Invalidation ({inv})"
+
+    if st.get("armed_time") and time.time() - st["armed_time"] > 7200:
+        return True, "หมดเวลา 2 ชั่วโมง"
+
+    return False, ""
+
+
+# ==========================================
+# 📡 STATE 4: เช็ค M5 BOS (Internal Trend เปลี่ยน)
+# ==========================================
+def check_m5_bos(st, symbol):
+    data     = get_json_data(symbol, "smc_state", "M5")
+    internal = (data or {}).get("structure", {}).get("internal_trend", "NONE")
+    bias     = st.get("active_bias", "NONE")
+    prev     = st.get("prev_m5_internal", "NONE")
+    st["prev_m5_internal"] = internal
+    return (
+        (bias == "BEARISH" and internal == "BEARISH" and prev != "BEARISH") or
+        (bias == "BULLISH" and internal == "BULLISH" and prev != "BULLISH")
+    )
+
+
+# ==========================================
+# 🎫 ดึง Ticket ล่าสุดของ Symbol จาก MT5
+# ==========================================
+def get_latest_ticket(symbol):
+    try:
+        import MetaTrader5 as mt5
+        if not mt5.initialize():
+            return None
+        positions = mt5.positions_get(symbol=symbol)
+        mt5.shutdown()
+        return max(p.ticket for p in positions) if positions else None
+    except Exception:
+        return None
+
+
+# ==========================================
+# 🔍 STATE 4: เช็คว่า Trade ยังเปิดอยู่
+# ==========================================
+def is_trade_open(ticket):
+    try:
+        import MetaTrader5 as mt5
+        if not mt5.initialize():
             return True
-        if bias == "BULLISH" and momentum > 0:
-            return True
+        positions = mt5.positions_get(ticket=ticket)
+        mt5.shutdown()
+        return bool(positions)
+    except Exception:
+        return True
 
-    return False
 
 # ==========================================
-# 🔍 Pre-Filter: H4+H1 Bias ตรงกันไหม?
+# 🛡️ STATE 4: ย้าย SL to Break Even
 # ==========================================
-def check_h4_h1_alignment(symbol):
-    h4 = get_json_data(symbol, "smc_state", "H4")
-    h1 = get_json_data(symbol, "smc_state", "H1")
-    if not h4 or not h1:
+def move_sl_to_breakeven(ticket):
+    try:
+        import MetaTrader5 as mt5
+        if not mt5.initialize():
+            return False
+        pos = mt5.positions_get(ticket=ticket)
+        if not pos:
+            mt5.shutdown()
+            return False
+        p       = pos[0]
+        request = {
+            "action": mt5.TRADE_ACTION_SLTP,
+            "ticket": ticket,
+            "sl":     p.price_open,
+            "tp":     p.tp,
+        }
+        result = mt5.order_send(request)
+        mt5.shutdown()
+        if result is None:
+            print("⚠️ MT5 ไม่ตอบสนอง ไม่สามารถย้าย SL ได้")
+            return False
+        ok = result.retcode == mt5.TRADE_RETCODE_DONE
+        if ok:
+            print(f"🛡️ [BE]: Ticket {ticket} SL → {p.price_open}")
+        return ok
+    except Exception as e:
+        print(f"⚠️ [BE]: {e}")
         return False
-    h4_trend = h4.get("structure", {}).get("swing_trend")
-    h1_trend = h1.get("structure", {}).get("swing_trend")
-    return h4_trend == h1_trend
-
-# ==========================================
-# 🚨 Invalidation Rules (STATE 2+3)
-# ==========================================
-def _check_invalidation(st, symbol, now_str):
-    # Rule 1: หมดเวลา 2 ชั่วโมง
-    if time.time() - st["armed_time"] > 7200:
-        print(f"[{now_str}] [{symbol}] ❌ INVALIDATE: หมดเวลา 2 ชั่วโมง → SCANNING")
-        return True
-
-    # Rule 2: H1 Trend เปลี่ยนจาก Bias ที่ตั้งไว้
-    h1_data  = get_json_data(symbol, "smc_state", "H1")
-    h1_trend = h1_data.get("structure", {}).get("swing_trend") if h1_data else None
-    if h1_trend and h1_trend != st["active_bias"]:
-        print(f"[{now_str}] [{symbol}] ❌ INVALIDATE: H1 Trend พัง ({h1_trend} ≠ {st['active_bias']}) → SCANNING")
-        return True
-
-    # Rule 3: ราคาทะลุโซน OB อ้างอิง
-    m15_data = get_json_data(symbol, "smc_state", "M15")
-    price    = m15_data.get("current_price", 0) if m15_data else 0
-    if price > 0 and st["ref_ob_top"] > 0:
-        if st["active_bias"] == "BEARISH" and price > st["ref_ob_top"]:
-            print(f"[{now_str}] [{symbol}] ❌ INVALIDATE: ราคา ({price}) ทะลุ Bear OB Top ({st['ref_ob_top']}) → SCANNING")
-            return True
-        if st["active_bias"] == "BULLISH" and price < st["ref_ob_btm"]:
-            print(f"[{now_str}] [{symbol}] ❌ INVALIDATE: ราคา ({price}) ทะลุ Bull OB Btm ({st['ref_ob_btm']}) → SCANNING")
-            return True
-
-    # Rule 4: มีข่าวแดงใน 30 นาที
-    if Hermes.is_high_impact_news_near(minutes=30):
-        print(f"[{now_str}] [{symbol}] ❌ INVALIDATE: มีข่าว HIGH Impact ใน 30 นาที → SCANNING")
-        return True
-
-    return False
 
 # ==========================================
 # 🪽 Hermes Background Thread
@@ -275,13 +328,15 @@ def main_loop():
     # State แยกต่อ Symbol
     states = {
         sym: {
-            "bot_state":    "SCANNING",
-            "active_bias":  "NONE",
-            "last_h1_trend": None,
-            "daily_trades": 0,
-            "armed_time":   0,
-            "ref_ob_top":   0,
-            "ref_ob_btm":   0,
+            "bot_state":           "SCANNING",
+            "active_bias":         "NONE",
+            "watch_checklist":     None,
+            "prev_momentum":       0.0,
+            "prev_m5_internal":    "NONE",
+            "armed_time":          0,
+            "invalidate_if_above": 0,
+            "open_ticket":         None,
+            "daily_trades":        0,
         }
         for sym in SYMBOLS
     }
@@ -298,10 +353,11 @@ def main_loop():
             today               = datetime.now().date()
             librarian_ran_today = False
             for sym in SYMBOLS:
-                states[sym]["daily_trades"]  = 0
-                states[sym]["bot_state"]     = "SCANNING"
-                states[sym]["active_bias"]   = "NONE"
-                states[sym]["last_h1_trend"] = None
+                states[sym]["daily_trades"]    = 0
+                states[sym]["bot_state"]       = "SCANNING"
+                states[sym]["active_bias"]     = "NONE"
+                states[sym]["watch_checklist"] = None
+                states[sym]["open_ticket"]     = None
             print(f"[{now_str}] 🌅 วันใหม่ รีเซ็ต Counter ทุก Symbol")
 
         # รัน Librarian ทุกวันจันทร์ (weekday 0)
@@ -323,125 +379,125 @@ def main_loop():
             st      = states[symbol]
             now_str = datetime.now().strftime('%H:%M:%S')
 
-            # เช็ค Daily Limit ของ Symbol นี้
             if st["daily_trades"] >= MAX_DAILY_TRADES:
                 print(f"[{now_str}] [{symbol}] 🛑 ครบ {MAX_DAILY_TRADES} ไม้แล้ว — ข้าม")
                 continue
 
-            # อัปเดตข้อมูลจาก MT5
             feed_midas.run_feeder(symbol)
 
-            # เช็คโซน M15
-            in_zone, zone_type = check_m15_zone(symbol)
-
-            if not in_zone:
-                if st["bot_state"] != "SCANNING":
-                    print(f"[{now_str}] [{symbol}] ⚠️ ราคาหลุดโซน รีเซ็ตกลับ SCANNING")
-                    st["bot_state"]   = "SCANNING"
-                    st["active_bias"] = "NONE"
-                else:
-                    print(f"[{now_str}] [{symbol}] 💤 ราคายังไม่เข้าโซน")
-                continue
-
-            # เช็ค H4+H1 Alignment ก่อนปลุก Brain
-            if not check_h4_h1_alignment(symbol):
-                print(f"[{now_str}] [{symbol}] ⛔ SKIP: H4+H1 Bias ขัดกัน")
-                continue
-
-            # ==========================================
-            # STATE MACHINE (ต่อ Symbol)
-            # ==========================================
-
-            # STATE 1: เพิ่งเข้าโซน → ถาม Claude หา Bias
+            # ─────────────────────────────────────
+            # STATE 1: SCANNING
+            # ─────────────────────────────────────
             if st["bot_state"] == "SCANNING":
-                h1_data         = get_json_data(symbol, "smc_state", "H1")
-                current_h1_trend = h1_data.get("structure", {}).get("swing_trend") if h1_data else None
-
-                if current_h1_trend == st["last_h1_trend"]:
-                    print(f"[{now_str}] [{symbol}] ⏸️ H1 ยังเหมือนเดิม ({current_h1_trend}) — ข้ามไป")
+                zone = read_morning_brief_zone(symbol)
+                if not zone:
+                    print(f"[{now_str}] [{symbol}] 💤 ไม่มี Zone จาก Morning Brief")
                     continue
 
-                print(f"\n[{now_str}] [{symbol}] 🚨 H1 เปลี่ยนเป็น {current_h1_trend}! ราคาเข้า {zone_type} ปลุก Midas...")
-                st["last_h1_trend"] = current_h1_trend
-                result = brain.think_and_trade(symbol)
+                data  = get_json_data(symbol, "smc_state", "M15")
+                price = (data or {}).get("current_price", 0)
+                ez_top, ez_btm = zone["entry_zone_top"], zone["entry_zone_btm"]
 
-                if result and result != (None, None):
-                    decision, _ = result
-                    if decision:
-                        st["active_bias"] = decision.get("bias", "NONE")
-                        if st["active_bias"] in ["BULLISH", "BEARISH"]:
-                            ref_zones = h1_data.get("zones", {}) if h1_data else {}
-                            if st["active_bias"] == "BEARISH":
-                                st["ref_ob_top"] = ref_zones.get("bear_ob_top", 0)
-                                st["ref_ob_btm"] = ref_zones.get("bear_ob_btm", 0)
-                            else:
-                                st["ref_ob_top"] = ref_zones.get("bull_ob_top", 0)
-                                st["ref_ob_btm"] = ref_zones.get("bull_ob_btm", 0)
-                            st["armed_time"] = time.time()
-                            print(f"🧠 [{symbol}] Bias = {st['active_bias']} → [ARMED] (OB ref: {st['ref_ob_btm']}-{st['ref_ob_top']})")
-                            st["bot_state"] = "ARMED"
-                        else:
-                            print(f"[{symbol}] ⏸️ โครงสร้างขัดแย้ง → รอต่อ")
-
-            # STATE 2: ได้ Bias แล้ว → รอ Sweep M5 สด
-            elif st["bot_state"] == "ARMED":
-                if _check_invalidation(st, symbol, now_str):
-                    st["bot_state"]   = "SCANNING"
-                    st["active_bias"] = "NONE"
+                if not price or not (ez_btm <= price <= ez_top):
+                    print(f"[{now_str}] [{symbol}] 💤 ราคา {price} ยังไม่เข้า Zone [{ez_btm}–{ez_top}]")
                     continue
-                print(f"\n[{now_str}] [{symbol}] 🛡️ [ARMED] รอ Sweep ฝั่ง {st['active_bias']} บน M5...")
-                if check_m5_sweep(st["active_bias"], symbol):
-                    print(f"[{symbol}] 💥 พบ Sweep สด! → [READY_TO_FIRE]")
-                    st["bot_state"] = "READY_TO_FIRE"
 
-            # STATE 3: Sweep แล้ว → รอ Squeeze ระเบิด แล้วยิง
-            elif st["bot_state"] == "READY_TO_FIRE":
-                if _check_invalidation(st, symbol, now_str):
-                    st["bot_state"]   = "SCANNING"
-                    st["active_bias"] = "NONE"
+                print(f"\n[{now_str}] [{symbol}] 🚨 ราคา {price} เข้า Zone! ปลุก Midas ครั้งที่ 1...")
+                checklist = brain.request_watch_checklist(symbol)
+                if not checklist:
+                    print(f"[{symbol}] ⚠️ ขอ Checklist ไม่ได้ — ข้าม")
                     continue
-                print(f"\n[{now_str}] [{symbol}] 🎯 [READY] รอ Squeeze ระเบิดทาง {st['active_bias']}...")
 
-                if check_m1_squeeze(st["active_bias"], symbol):
-                    print(f"[{symbol}] 🔥 Squeeze ระเบิด! ปลุก Midas ยืนยันและยิง...")
-                    result = brain.think_and_trade(symbol)
+                st["watch_checklist"]     = checklist
+                st["active_bias"]         = checklist.get("bias", zone["bias"])
+                st["invalidate_if_above"] = zone["invalidate_if_above"]
+                st["armed_time"]          = time.time()
+                st["prev_momentum"]       = 0.0
+                st["prev_m5_internal"]    = "NONE"
+                st["bot_state"]           = "WATCHING"
 
-                    if result and result != (None, None):
-                        decision, calc_data = result
+            # ─────────────────────────────────────
+            # STATE 2: WATCHING
+            # ─────────────────────────────────────
+            elif st["bot_state"] == "WATCHING":
+                is_inv, inv_reason = check_invalidation_watching(st, symbol)
+                if is_inv:
+                    print(f"[{now_str}] [{symbol}] ❌ INVALIDATE: {inv_reason} → SCANNING")
+                    st["bot_state"]       = "SCANNING"
+                    st["active_bias"]     = "NONE"
+                    st["watch_checklist"] = None
+                    continue
 
-                        if decision is None or calc_data is None:
-                            print(f"[{symbol}] ⚠️ Brain ไม่ตอบ รีเซ็ต SCANNING")
-                            st["bot_state"]   = "SCANNING"
-                            st["active_bias"] = "NONE"
-                            continue
+                all_met, results = check_watching_conditions(st, symbol)
+                status = " | ".join(f"{k}={'✅' if v else '❌'}" for k, v in results.items())
+                print(f"[{now_str}] [{symbol}] 👁️ WATCHING {st['active_bias']} | {status}")
 
-                        action = decision.get("action", "WAIT")
-                        entry  = calc_data[0]
-                        sl     = calc_data[1]
-                        tp     = calc_data[2]
-                        reason = decision.get("reason", "")
+                if all_met:
+                    print(f"[{symbol}] ✅ ครบทุกเงื่อนไข! ปลุก Midas ครั้งที่ 2...")
+                    st["bot_state"] = "EXECUTE"
 
-                        if action in ["BUY", "SELL"] and entry is not None:
-                            print(f"[{symbol}] 💥 [FIRE]: {action}! Entry={entry} SL={sl} TP={tp}")
-                            if not auto_trade.check_spread_safe(symbol):
-                                st["bot_state"]   = "SCANNING"
-                                st["active_bias"] = "NONE"
-                                continue
-                            is_success = auto_trade.execute_mt5_order(action, symbol, 0.01, sl, tp)
+            # ─────────────────────────────────────
+            # STATE 3: EXECUTE
+            # ─────────────────────────────────────
+            elif st["bot_state"] == "EXECUTE":
+                decision, calc_data = brain.request_execute(symbol, st["watch_checklist"])
 
-                            if is_success:
-                                auto_trade.send_telegram_alert(action, symbol, entry, sl, tp, reason)
-                                st["daily_trades"] += 1
-                                print(f"[{symbol}] 📊 ไม้ที่ {st['daily_trades']}/{MAX_DAILY_TRADES}")
-                                time.sleep(120)
+                if not decision:
+                    print(f"[{symbol}] ⚠️ Midas ไม่ตอบ → SCANNING")
+                    st["bot_state"]       = "SCANNING"
+                    st["active_bias"]     = "NONE"
+                    st["watch_checklist"] = None
+                    continue
 
-                        elif action in ["BUY", "SELL"] and entry is None:
-                            print(f"[{symbol}] 🚨 คำนวณ SL/TP ไม่ได้ — ยกเลิก")
-                        else:
-                            print(f"[{symbol}] ⏸️ Midas สั่ง WAIT วินาทีสุดท้าย")
+                action        = decision.get("action", "WAIT")
+                entry, sl, tp, rr = calc_data if calc_data else (None, None, None, 0)
 
-                        st["bot_state"]   = "SCANNING"
-                        st["active_bias"] = "NONE"
+                if action in ["BUY", "SELL"] and entry is not None:
+                    print(f"[{symbol}] 💥 [FIRE]: {action}! Entry={entry} SL={sl} TP={tp}")
+                    if not auto_trade.check_spread_safe(symbol):
+                        st["bot_state"]       = "SCANNING"
+                        st["active_bias"]     = "NONE"
+                        st["watch_checklist"] = None
+                        continue
+                    lot        = brain.calculate_lot_size(symbol, entry, sl)
+                    is_success = auto_trade.execute_mt5_order(action, symbol, lot, sl, tp)
+                    if is_success:
+                        auto_trade.send_telegram_alert(action, symbol, entry, sl, tp, decision.get("reason"))
+                        ticket = get_latest_ticket(symbol)
+                        st["open_ticket"]   = ticket
+                        st["daily_trades"] += 1
+                        st["bot_state"]     = "MONITORING"
+                        print(f"[{symbol}] 📊 ไม้ที่ {st['daily_trades']}/{MAX_DAILY_TRADES} | Ticket={ticket}")
+                    else:
+                        print(f"[{symbol}] ❌ Execute ล้มเหลว → SCANNING")
+                        st["bot_state"]       = "SCANNING"
+                        st["active_bias"]     = "NONE"
+                        st["watch_checklist"] = None
+                else:
+                    print(f"[{symbol}] ⏸️ Midas สั่ง WAIT — {decision.get('reason', '')}")
+                    st["bot_state"]       = "SCANNING"
+                    st["active_bias"]     = "NONE"
+                    st["watch_checklist"] = None
+
+            # ─────────────────────────────────────
+            # STATE 4: MONITORING
+            # ─────────────────────────────────────
+            elif st["bot_state"] == "MONITORING":
+                ticket = st.get("open_ticket")
+                if not ticket or not is_trade_open(ticket):
+                    print(f"[{now_str}] [{symbol}] ✅ ไม้ปิดแล้ว (TP/SL Hit) → SCANNING")
+                    st["bot_state"]       = "SCANNING"
+                    st["active_bias"]     = "NONE"
+                    st["watch_checklist"] = None
+                    st["open_ticket"]     = None
+                    continue
+
+                print(f"[{now_str}] [{symbol}] 🔍 MONITORING Ticket={ticket} ({st['active_bias']})")
+                if check_m5_bos(st, symbol):
+                    print(f"[{symbol}] 🛡️ BOS ใน M5 — ย้าย SL to Break Even")
+                    ok = move_sl_to_breakeven(ticket)
+                    if ok:
+                        auto_trade.send_telegram_message(f"🛡️ {symbol}: SL ย้าย BE แล้ว (BOS M5)")
 
         print(f"⏳ รอสแกนรอบถัดไป (60 วินาที)...")
         time.sleep(60)

@@ -25,7 +25,8 @@ AI_MODEL = "claude-haiku-4-5-20251001"
 BASE_DIR          = "Midas_Brain"
 CONSTITUTION_PATH = os.path.join(BASE_DIR, "00_Midas_Constitution.md")
 INTELLIGENCE_PATH  = os.path.join(BASE_DIR, "data", "market", "daily_intelligence.md")
-MORNING_BRIEF_PATH = os.path.join(BASE_DIR, "data", "market", "morning_brief.md")
+MORNING_BRIEF_PATH     = os.path.join(BASE_DIR, "data", "market", "morning_brief.md")
+MORNING_BRIEF_JSON_PATH = os.path.join(BASE_DIR, "data", "market", "morning_brief.json")
 
 PRICE_FILTERS = {
     "GOLD":   100,
@@ -320,7 +321,13 @@ def morning_brief(symbols):
     intelligence  = read_file(INTELLIGENCE_PATH)
     intel_section = f"\n[HERMES INTELLIGENCE]:\n{intelligence}" if intelligence else ""
 
-    sym_lines = "\n".join(f'  "{s}": {{"bias": "BULLISH|BEARISH|WAIT", "wait_for": "...", "note": "..."}},' for s in symbols)
+    sym_lines = "\n".join(
+        f'  "{s}": {{"bias": "BULLISH|BEARISH|WAIT", "wait_for": "...", '
+        f'"entry_zone_top": 0.0, "entry_zone_btm": 0.0, '
+        f'"sl_level": 0.0, "tp_level": 0.0, '
+        f'"invalidate_if_above": 0.0, "note": "..."}},'
+        for s in symbols
+    )
 
     system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC.
 Give a concise briefing for each symbol based on current market structure and news.
@@ -331,8 +338,15 @@ CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra
 {sections_str}
 {intel_section}
 
-For each symbol assess bias and what to wait for before trading.
-Output ONLY this JSON (fill values, remove placeholder text):
+For each symbol assess bias and identify key levels from actual OB/FVG/Swing High/Low in the data.
+Rules:
+- entry_zone_top / entry_zone_btm: the OB or FVG zone to watch for entry (aligned with bias)
+- sl_level: beyond the swept liquidity or outside the OB (invalidation point)
+- tp_level: next significant LQ pool or structural target in the bias direction
+- invalidate_if_above: price level that would break the bearish thesis (or below for bullish)
+- Do NOT invent levels — use only values visible in the market data above
+
+Output ONLY this JSON (fill numeric values, remove placeholder text):
 {{
 {sym_lines}
 }}"""
@@ -340,7 +354,7 @@ Output ONLY this JSON (fill values, remove placeholder text):
     try:
         response = client.messages.create(
             model=AI_MODEL,
-            max_tokens=600,
+            max_tokens=1200,
             temperature=0.1,
             system=system_prompt,
             messages=[{"role": "user", "content": user_prompt}]
@@ -348,6 +362,10 @@ Output ONLY this JSON (fill values, remove placeholder text):
 
         raw   = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
         brief = json.loads(raw)
+
+        # บันทึก JSON สำหรับ State Machine
+        with open(MORNING_BRIEF_JSON_PATH, "w", encoding="utf-8") as f:
+            json.dump(brief, f, ensure_ascii=False, indent=2)
 
         # บันทึก markdown
         time_str = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -357,6 +375,16 @@ Output ONLY this JSON (fill values, remove placeholder text):
                 f.write(f"## {sym}\n")
                 f.write(f"- **Bias:** {info.get('bias', 'N/A')}\n")
                 f.write(f"- **รอ:** {info.get('wait_for', '-')}\n")
+                ez_top = info.get('entry_zone_top', 0)
+                ez_btm = info.get('entry_zone_btm', 0)
+                if ez_top and ez_btm:
+                    f.write(f"- **Entry Zone:** {ez_btm} – {ez_top}\n")
+                if info.get('sl_level'):
+                    f.write(f"- **SL:** {info['sl_level']}\n")
+                if info.get('tp_level'):
+                    f.write(f"- **TP:** {info['tp_level']}\n")
+                if info.get('invalidate_if_above'):
+                    f.write(f"- **Invalidate if above:** {info['invalidate_if_above']}\n")
                 if info.get("note"):
                     f.write(f"- **Note:** {info['note']}\n")
                 f.write("\n")
@@ -385,6 +413,129 @@ Output ONLY this JSON (fill values, remove placeholder text):
     except Exception as e:
         print(f"❌ [Morning Brief]: {e}")
         return None
+
+
+# ==========================================
+# 📋 STATE 1: ขอ Watch Checklist
+# ==========================================
+def request_watch_checklist(symbol):
+    market_data_path = os.path.join(BASE_DIR, "data", "market", f"latest_data_{symbol}.md")
+    constitution = read_file(CONSTITUTION_PATH)
+    market_data  = read_file(market_data_path)
+    if not constitution or not market_data:
+        return None
+
+    system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC.
+Price has entered the watch zone from the Morning Brief. Analyze market structure and return a watch checklist.
+CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
+
+    user_prompt = f"""[CONSTITUTION & RULES]:
+{constitution}
+
+[MARKET DATA]:
+{market_data}
+
+Price has entered the Entry Zone identified in the Morning Brief.
+Analyze current H4/H1 structure and decide what trigger conditions must be met before executing.
+
+Output ONLY this JSON:
+{{
+    "watch_for": {{
+        "sweep": true,
+        "squeeze_off": true,
+        "histogram_dark": true
+    }},
+    "bias": "BULLISH|BEARISH",
+    "invalidate_if": "อธิบาย price level หรือ condition ที่จะยกเลิก Setup นี้",
+    "summary": "สรุปสั้นๆ ว่ากำลังรอดูอะไร (ภาษาไทย)"
+}}"""
+
+    try:
+        response = client.messages.create(
+            model=AI_MODEL,
+            max_tokens=400,
+            temperature=0.1,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}]
+        )
+        raw    = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
+        result = json.loads(raw)
+        print(f"\n📋 [{symbol}] Watch Checklist: {result.get('summary', '')}")
+        return result
+    except Exception as e:
+        print(f"❌ [Watch Checklist] {symbol}: {e}")
+        return None
+
+
+# ==========================================
+# 🔥 STATE 3: ยืนยันและ Execute
+# ==========================================
+def request_execute(symbol, watch_checklist):
+    market_data_path = os.path.join(BASE_DIR, "data", "market", f"latest_data_{symbol}.md")
+    constitution = read_file(CONSTITUTION_PATH)
+    market_data  = read_file(market_data_path)
+    if not constitution or not market_data:
+        return None, None
+
+    checklist_str = json.dumps(watch_checklist, ensure_ascii=False, indent=2)
+
+    system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC.
+All trigger conditions have been confirmed by Python. Do a final sanity check and execute.
+CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
+
+    user_prompt = f"""[CONSTITUTION & RULES]:
+{constitution}
+
+[MARKET DATA]:
+{market_data}
+
+[WATCH CHECKLIST — ALL CONDITIONS MET BY PYTHON]:
+{checklist_str}
+
+Python confirmed all triggers. Final check: is structure still valid?
+If YES → BUY or SELL. If something changed → WAIT with reason.
+
+Output ONLY this JSON (ห้ามใส่ entry, sl, tp — Python คำนวณเอง):
+{{
+    "action": "BUY|SELL|WAIT",
+    "score": <0-10>,
+    "confidence": "HIGH|MEDIUM|LOW",
+    "bias": "BULLISH|BEARISH|NEUTRAL",
+    "reason": "อธิบายสั้นๆ (ภาษาไทย)",
+    "summary": "สรุป 1 บรรทัด (ภาษาไทย)"
+}}"""
+
+    try:
+        response = client.messages.create(
+            model=AI_MODEL,
+            max_tokens=400,
+            temperature=0.1,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}]
+        )
+        raw      = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
+        decision = json.loads(raw)
+
+        print("\n" + "="*50)
+        print(f"🔥 [{symbol}] EXECUTE DECISION:")
+        print(json.dumps(decision, indent=4, ensure_ascii=False))
+
+        action    = decision.get("action")
+        score     = decision.get("score", 0)
+        calc_data = (None, None, None, 0)
+
+        if action in ["BUY", "SELL"]:
+            entry, sl, tp, rr = calculate_gold_sl_tp(action, score, market_data, symbol)
+            calc_data = (entry, sl, tp, rr)
+            if entry:
+                print(f"✅ Entry={entry} | SL={sl} | TP={tp} (RR 1:{rr})")
+
+        append_to_journal(decision, calc_data, symbol)
+        return decision, calc_data
+
+    except Exception as e:
+        print(f"❌ [Execute] {symbol}: {e}")
+        return None, None
 
 
 # ==========================================
