@@ -11,10 +11,14 @@
             "id": "9ca7c703f6b9213d",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "data/journal/Journal_Index.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Journal_Index"
             }
           }
         ]
@@ -178,6 +182,13 @@
   },
   "active": "9ca7c703f6b9213d",
   "lastOpenFiles": [
+    "MIDAS_REQUIREMENTS.md.tmp.7808.cb9f1cc7aaa1",
+    "MIDAS_REQUIREMENTS.md.tmp.7808.cc3680cd3ea9",
+    "MIDAS_REQUIREMENTS.md.tmp.7808.f9ef239abe1c",
+    "data/journal/2026-05-21.md",
+    "data/market/daily_intelligence.md",
+    "data/market/Market_Data_Index.md",
+    "MIDAS_REQUIREMENTS.md.tmp.7808.4f32d6ce77c1",
     "data/market/latest_data_ETHUSD.md",
     "data/market/latest_data_USDCHF.md",
     "data/market/latest_data_USDCAD.md",
@@ -187,19 +198,14 @@
     "00_Midas_Constitution.md.tmp.7808.8313f6e0ff1b",
     "00_Midas_Constitution.md.tmp.7808.4cc39f3d1f3e",
     "00_Midas_Constitution.md.tmp.7808.5efd46aca350",
-    "data/journal/2026-05-21.md",
     "MIDAS_REQUIREMENTS.md.tmp.18460.0a5223be4adb",
     "MIDAS_REQUIREMENTS.md.tmp.18460.e7eb63df40ec",
     "MIDAS_REQUIREMENTS.md.tmp.18460.555a8094abd5",
     "00_Midas_Constitution.md",
-    "MIDAS_PROMPT_BLUEPRINT.md.tmp.18460.21fa3f03638c",
-    "MIDAS_REQUIREMENTS.md.tmp.18460.fa6fd433bb0c",
-    "00_Midas_Constitution.md.tmp.18460.470d76fed4a0",
     "wiki/lessons/Lessons_Index.md",
     "data/journal/Journal_Index.md",
     "wiki/knowledge/Knowledge_Index.md",
     "wiki/strategies/Strategies_Index.md",
-    "data/market/Market_Data_Index.md",
     "00_Dashboard.md",
     "wiki/knowledge/SMC_Concepts.md",
     "wiki/knowledge/Market_Psychology.md",
@@ -213,8 +219,6 @@
     "data/journal/2026-05-20.md",
     "data/journal/2026-05-17.md",
     "data/journal/2026-05-15.md",
-    "data/journal/2026-05-14.md",
-    "wiki/lessons/Analysis_2026-05-14_21-07-27.md",
-    "data/market/daily_intelligence.md"
+    "data/journal/2026-05-14.md"
   ]
 }

@@ -11,3 +11,8 @@
 - [[latest_data_BTCUSD]] — BTCUSD ล่าสุด
 - [[latest_data_EURUSD]] — EURUSD ล่าสุด
 - [[latest_data_GBPJPY]] — GBPJPY ล่าสุด
+- [[latest_data_GBPUSD]] — GBPUSD ล่าสุด
+- [[latest_data_AUDUSD]] — AUDUSD ล่าสุด
+- [[latest_data_USDCAD]] — USDCAD ล่าสุด
+- [[latest_data_USDCHF]] — USDCHF ล่าสุด
+- [[latest_data_ETHUSD]] — ETHUSD ล่าสุด
