@@ -148,7 +148,11 @@ Indicator คือเครื่องมือช่วยอ่าน ไม
 **3. Indicator อื่นๆ ทำหน้าที่ยืนยันเท่านั้น**
 - LQ Sweep → ยืนยันว่า Sweep เกิดจริง
 - MACD → ยืนยัน Momentum
-- Squeeze → ยืนยัน Timing ก่อนเข้า
+- Squeeze → ยืนยัน Timing ก่อนเข้า โดยมีกฎดังนี้:
+  - `squeeze_state = OFF` + Momentum วิ่งทิศเดียวกับ Bias = ผ่าน ✅ เข้าได้เลย
+  - `is_firing_now` ใช้จับจังหวะแรกที่ระเบิดเท่านั้น ไม่จำเป็นต้องรอถ้า OFF แล้ว
+  - `bars_since_fire = -1` แต่ `squeeze_state = OFF` และ momentum ตรง Bias → ถือว่าผ่าน ✅
+  - ห้าม WAIT เพราะ `is_firing_now = false` ถ้า Squeeze ระเบิดไปแล้วและ momentum ยังวิ่งอยู่
 - Volume Profile → ยืนยัน Conviction
 
 **4. Claude ต้องคิดแบบเทรดเดอร์ SMC ไม่ใช่อ่าน Indicator ตรงๆ**

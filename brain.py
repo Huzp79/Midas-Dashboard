@@ -226,8 +226,12 @@ STEP 2 - LOCATION (M30 + M15)
 STEP 3 - TRIGGER (M5 + M1) ← สำคัญที่สุด
 - bars_ago ของ LQ Sweep:
   0-1 = สดมาก ✅ | 2-3 = พอได้ ⚠️ | 4+ หรือ -1 = ❌ WAIT
-- is_firing_now ของ Squeeze:
-  true + ทิศทางตรง Bias = ยิงได้ ✅
+- Squeeze Logic (อ่านให้ครบก่อนตัดสิน):
+  squeeze_state = OFF + momentum > 0 + Bias BULLISH = ✅ เข้าได้
+  squeeze_state = OFF + momentum < 0 + Bias BEARISH = ✅ เข้าได้
+  is_firing_now = true คือโบนัส ไม่ใช่เงื่อนไขบังคับ
+  ถ้า squeeze_state = OFF และ momentum ตรง Bias → ผ่าน แม้ bars_since_fire = -1
+  ห้าม WAIT เพราะ is_firing_now = false ถ้า Squeeze ระเบิดไปแล้วและ momentum ยังวิ่งอยู่
 
 STEP 4 - HONEST CHECK
 - ถ้าเป็นเงินตัวเอง เข้าไหม?
