@@ -33,6 +33,11 @@ PRICE_FILTERS = {
     "BTCUSD": 1000,
     "EURUSD": 0.5,
     "GBPJPY": 100,
+    "GBPUSD": 0.5,
+    "AUDUSD": 0.5,
+    "USDCAD": 0.5,
+    "USDCHF": 0.5,
+    "ETHUSD": 100,
 }
 TRADE_LOG_DIR     = os.path.join(BASE_DIR, "data", "journal")
 os.makedirs(TRADE_LOG_DIR, exist_ok=True)

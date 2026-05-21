@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - GBPJPY
-**Updated:** 2026-05-21 18:43:16
+**Updated:** 2026-05-21 18:44:16
 
 ## ⏳ H4
 - **[SMC]:** Price=213.582 | Swing=BULLISH | Internal=BULLISH
@@ -10,7 +10,7 @@
 - **[SMC]:** Price=213.603 | Swing=BEARISH | Internal=BULLISH
   - 🟢 Bull OB(213.466-213.275) FVG(213.263-213.199)
   - 🔴 Bear OB(213.688-213.545) FVG(215.593-215.264)
-- **[MACD]:** Divergence=BEARISH | Hist=0.00944
+- **[MACD]:** Divergence=BEARISH | Hist=0.01088
 
 ## ⏳ M30
 - **[SMC]:** Price=213.718 | Swing=BULLISH | Internal=BULLISH
@@ -31,7 +31,7 @@
 - **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(213.388-213.36) 🔴(213.809-213.752)
 
 ## ⏳ M1
-- **[SMC]:** Price=213.71 | Swing=BEARISH | Internal=BULLISH
+- **[SMC]:** Price=213.711 | Swing=BEARISH | Internal=BULLISH
   - 🟢 Bull OB(213.708-213.663) FVG(213.332-213.309)
   - 🔴 Bear OB(213.765-213.739) FVG(0.0-0.0)
 - **[Squeeze]:** State=OFF | is_firing_now=False | Direction=NONE | bars_since=-1

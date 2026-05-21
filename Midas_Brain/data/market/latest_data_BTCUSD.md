@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - BTCUSD
-**Updated:** 2026-05-21 18:43:16
+**Updated:** 2026-05-21 18:44:16
 
 ## ⏳ H4
 - **[SMC]:** Price=77903.25 | Swing=BULLISH | Internal=BULLISH
@@ -10,7 +10,7 @@
 - **[SMC]:** Price=77178.25 | Swing=BEARISH | Internal=BULLISH
   - 🟢 Bull OB(77534.95-76985.55) FVG(0.0-0.0)
   - 🔴 Bear OB(78465.35-78214.95) FVG(0.0-0.0)
-- **[MACD]:** Divergence=NONE | Hist=-88.18756
+- **[MACD]:** Divergence=NONE | Hist=-87.4127
 
 ## ⏳ M30
 - **[SMC]:** Price=77298.45 | Swing=BULLISH | Internal=BEARISH
@@ -31,7 +31,7 @@
 - **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(0.0-0.0) 🔴(0.0-0.0)
 
 ## ⏳ M1
-- **[SMC]:** Price=77239.05 | Swing=BEARISH | Internal=BEARISH
+- **[SMC]:** Price=77218.65 | Swing=BEARISH | Internal=BEARISH
   - 🟢 Bull OB(77218.65-77171.05) FVG(0.0-0.0)
   - 🔴 Bear OB(77356.25-77328.25) FVG(77895.95-77830.65)
 - **[Squeeze]:** State=OFF | is_firing_now=False | Direction=NONE | bars_since=-1

@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - GOLD
-**Updated:** 2026-05-21 18:43:16
+**Updated:** 2026-05-21 18:44:16
 
 ## ⏳ H4
 - **[SMC]:** Price=4532.28 | Swing=BEARISH | Internal=BEARISH
@@ -10,7 +10,7 @@
 - **[SMC]:** Price=4511.35 | Swing=BEARISH | Internal=BEARISH
   - 🟢 Bull OB(4420.55-4350.91) FVG(0.0-0.0)
   - 🔴 Bear OB(4570.65-4539.65) FVG(4646.7-4631.35)
-- **[MACD]:** Divergence=NONE | Hist=-3.18372
+- **[MACD]:** Divergence=NONE | Hist=-3.25298
 
 ## ⏳ M30
 - **[SMC]:** Price=4513.97 | Swing=BEARISH | Internal=BEARISH
@@ -31,7 +31,7 @@
 - **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(0.0-0.0) 🔴(4534.48-4511.84)
 
 ## ⏳ M1
-- **[SMC]:** Price=4513.07 | Swing=BEARISH | Internal=BEARISH
+- **[SMC]:** Price=4512.56 | Swing=BEARISH | Internal=BEARISH
   - 🟢 Bull OB(0.0-0.0) FVG(0.0-0.0)
   - 🔴 Bear OB(4515.71-4513.63) FVG(4518.6-4516.67)
 - **[Squeeze]:** State=OFF | is_firing_now=False | Direction=NONE | bars_since=-1

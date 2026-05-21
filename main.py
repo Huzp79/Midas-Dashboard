@@ -12,7 +12,7 @@ import librarian
 
 print("🚀 [Midas Core]: กำลังบูตระบบ (SMC State Machine)...")
 
-SYMBOLS = ["GOLD", "BTCUSD", "EURUSD", "GBPJPY"]
+SYMBOLS = ["GOLD", "BTCUSD", "EURUSD", "GBPJPY", "GBPUSD", "AUDUSD", "USDCAD", "USDCHF", "ETHUSD"]
 
 # ==========================================
 # 🛠️ Helper: อ่าน JSON จาก MT5
