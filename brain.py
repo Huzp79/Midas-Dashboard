@@ -359,7 +359,7 @@ Output ONLY this JSON (fill numeric values, remove placeholder text):
     try:
         response = client.messages.create(
             model=AI_MODEL,
-            max_tokens=1200,
+            max_tokens=2500,
             temperature=0.1,
             system=system_prompt,
             messages=[{"role": "user", "content": user_prompt}]

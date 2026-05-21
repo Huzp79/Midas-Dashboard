@@ -178,6 +178,12 @@
   },
   "active": "9ca7c703f6b9213d",
   "lastOpenFiles": [
+    "data/market/latest_data_ETHUSD.md",
+    "data/market/latest_data_USDCHF.md",
+    "data/market/latest_data_USDCAD.md",
+    "data/market/latest_data_AUDUSD.md",
+    "data/market/latest_data_GBPUSD.md",
+    "data/market/morning_brief.json",
     "00_Midas_Constitution.md.tmp.7808.8313f6e0ff1b",
     "00_Midas_Constitution.md.tmp.7808.4cc39f3d1f3e",
     "00_Midas_Constitution.md.tmp.7808.5efd46aca350",
@@ -189,9 +195,7 @@
     "MIDAS_PROMPT_BLUEPRINT.md.tmp.18460.21fa3f03638c",
     "MIDAS_REQUIREMENTS.md.tmp.18460.fa6fd433bb0c",
     "00_Midas_Constitution.md.tmp.18460.470d76fed4a0",
-    "00_Dashboard.md.tmp.18460.b811f57cf047",
     "wiki/lessons/Lessons_Index.md",
-    "wiki/lessons/Lessons_Index.md.tmp.18460.854bbc00391c",
     "data/journal/Journal_Index.md",
     "wiki/knowledge/Knowledge_Index.md",
     "wiki/strategies/Strategies_Index.md",
@@ -211,10 +215,6 @@
     "data/journal/2026-05-15.md",
     "data/journal/2026-05-14.md",
     "wiki/lessons/Analysis_2026-05-14_21-07-27.md",
-    "data/market/daily_intelligence.md",
-    "wiki/lessons/weekly_report.md",
-    "data/market/morning_brief.md",
-    "raw/trades/2026-05-20.md",
-    "data/market/latest_data_GOLD.md"
+    "data/market/daily_intelligence.md"
   ]
 }

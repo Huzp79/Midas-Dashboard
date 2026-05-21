@@ -1,0 +1,92 @@
+{
+  "GOLD": {
+    "bias": "BEARISH",
+    "wait_for": "Retest of bear OB 4542.61-4527.64 on M30 or break below 4506.18",
+    "entry_zone_top": 4542.61,
+    "entry_zone_btm": 4527.64,
+    "sl_level": 4561.12,
+    "tp_level": 4420.55,
+    "invalidate_if_above": 4561.12,
+    "note": "All timeframes bearish. Price below bear OB. Target bull OB 4420.55-4350.91. Risk/reward favorable on M30 retest."
+  },
+  "BTCUSD": {
+    "bias": "WAIT",
+    "wait_for": "Clarity on H1 swing conflict (H4 bullish vs H1 bearish). Await close above 77534.95 or below 77004.95",
+    "entry_zone_top": 77534.95,
+    "entry_zone_btm": 76985.55,
+    "sl_level": 76119.45,
+    "tp_level": 82021.7,
+    "invalidate_if_above": 78465.35,
+    "note": "H4 bullish but H1 bearish creates conflict. M30/M15 show internal bearish despite bullish swing. Wait for resolution."
+  },
+  "EURUSD": {
+    "bias": "BULLISH",
+    "wait_for": "Squeeze firing on M1 (bullish direction). Retest of M15 bull OB 1.15902-1.15816 or break above 1.16024",
+    "entry_zone_top": 1.15941,
+    "entry_zone_btm": 1.15828,
+    "sl_level": 1.15816,
+    "tp_level": 1.16603,
+    "invalidate_if_above": 1.16603,
+    "note": "M15 bullish swing with bullish internal. M1 squeeze firing bullish. Bearish sweep 4 bars ago on M15 suggests reversal setup. Target bear OB."
+  },
+  "GBPJPY": {
+    "bias": "BULLISH",
+    "wait_for": "M1 squeeze firing bullish (4 bars). Retest of M1 bull OB 213.506-213.483 or break above 213.616",
+    "entry_zone_top": 213.466,
+    "entry_zone_btm": 213.275,
+    "sl_level": 213.121,
+    "tp_level": 214.19,
+    "invalidate_if_above": 214.19,
+    "note": "H4/H1/M30/M15 all bullish. M1 squeeze ON and firing bullish. Strong confluence. Target bear OB 214.19-214.148."
+  },
+  "GBPUSD": {
+    "bias": "BULLISH",
+    "wait_for": "M1 squeeze firing bullish (4 bars). Retest of M1 bull OB 1.34158-1.3412 or break above 1.34229",
+    "entry_zone_top": 1.33917,
+    "entry_zone_btm": 1.33739,
+    "sl_level": 1.33739,
+    "tp_level": 1.35315,
+    "invalidate_if_above": 1.35315,
+    "note": "M15 bullish swing despite H4/H1 bearish. M1 squeeze firing bullish. Micro timeframe strength suggests reversal. Target M30 bear OB."
+  },
+  "AUDUSD": {
+    "bias": "BULLISH",
+    "wait_for": "M15 bullish swing confirmation. Retest of M15 bull OB 1.71148-0.7107 or break above 0.71492",
+    "entry_zone_top": 0.71148,
+    "entry_zone_btm": 0.7107,
+    "sl_level": 0.70857,
+    "tp_level": 0.71757,
+    "invalidate_if_above": 0.71757,
+    "note": "M15 bullish swing with bullish internal. H4/H1 bearish but M15 structure suggests reversal. Target bear OB 0.71551-0.71492."
+  },
+  "USDCAD": {
+    "bias": "BULLISH",
+    "wait_for": "Continuation above 1.37712. Retest of M30 bull OB 1.37414-1.37324 or break above 1.37772",
+    "entry_zone_top": 1.37414,
+    "entry_zone_btm": 1.37324,
+    "sl_level": 1.37303,
+    "tp_level": 1.3787,
+    "invalidate_if_above": 1.3787,
+    "note": "H4/H1/M30/M5 all bullish. M15 bearish swing but internal bullish. Strong bullish bias. Target bear OB 1.3787-1.37637."
+  },
+  "USDCHF": {
+    "bias": "BULLISH",
+    "wait_for": "M1 squeeze firing bearish (4 bars). Retest of M5 bull OB 0.78747-0.78709 or break above 0.79022",
+    "entry_zone_top": 0.78747,
+    "entry_zone_btm": 0.78709,
+    "sl_level": 0.78577,
+    "tp_level": 0.79059,
+    "invalidate_if_above": 0.79059,
+    "note": "H1/M30/M5 bullish. M15 bearish sweep 4 bars ago suggests reversal. M1 squeeze firing bearish but price bullish. Target bear OB 0.79059-0.79022."
+  },
+  "ETHUSD": {
+    "bias": "BULLISH",
+    "wait_for": "M5 bullish sweep confirmation (1 bar ago). Retest of M5 bull OB 2.106.06-2100.12 or break above 2136.0",
+    "entry_zone_top": 2116.86,
+    "entry_zone_btm": 2101.02,
+    "sl_level": 2092.13,
+    "tp_level": 2145.97,
+    "invalidate_if_above": 2145.97,
+    "note": "M5 bullish sweep 1 bar ago. M1 squeeze firing bullish. H4/H1/M30 bearish but M15/M5 show reversal structure. Target bear OB 2145.97-2136.0."
+  }
+}
