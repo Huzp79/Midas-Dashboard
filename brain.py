@@ -473,6 +473,80 @@ Output ONLY this JSON:
 
 
 # ==========================================
+# ⚡ STATE 2.5: Pre-Entry (Squeeze ON + ราคาใน Zone)
+# ==========================================
+def request_pre_entry(symbol):
+    """ปลุก Midas เมื่อ Squeeze = ON + ราคาใน Zone — ตัดสิน PENDING/MARKET/WAIT"""
+    market_data_path = os.path.join(BASE_DIR, "data", "market", f"latest_data_{symbol}.md")
+    constitution = read_file(CONSTITUTION_PATH)
+    market_data  = read_file(market_data_path)
+    if not constitution or not market_data:
+        return None
+
+    system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC.
+Squeeze momentum is building (state=ON) and price is inside the Entry Zone.
+Decide whether to place a Pending Limit Order at the OB level now.
+CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
+
+    user_prompt = f"""[CONSTITUTION & RULES]:
+{constitution}
+
+[MARKET DATA]:
+{market_data}
+
+CONTEXT: Squeeze state=ON (momentum building). Price is currently inside the Entry Zone.
+
+Decide:
+- PENDING = Place BUY_LIMIT or SELL_LIMIT at the OB level (price will retest before breakout)
+- MARKET = Enter now (momentum is already strong enough to go straight in)
+- WAIT = Conditions not favorable, do nothing
+
+Output ONLY this JSON:
+{{
+    "action": "BUY|SELL|WAIT",
+    "order_type": "PENDING|MARKET",
+    "reason": "อธิบายสั้นๆ (ภาษาไทย)"
+}}"""
+
+    try:
+        response = client.messages.create(
+            model=AI_MODEL,
+            max_tokens=250,
+            temperature=0.1,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}]
+        )
+        raw    = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
+        result = json.loads(raw)
+
+        action     = result.get("action", "WAIT")
+        order_type = result.get("order_type", "PENDING")
+
+        if action == "WAIT":
+            print(f"⏸️ [Pre-Entry] {symbol}: WAIT — {result.get('reason', '')}")
+            return result
+
+        entry, sl, tp, rr = calculate_gold_sl_tp(action, 7, market_data, symbol)
+        if entry is None:
+            print(f"⚠️ [Pre-Entry] {symbol}: คำนวณ Entry ไม่ได้ → WAIT")
+            return {"action": "WAIT", "order_type": "PENDING", "reason": "คำนวณ Entry ไม่ได้"}
+
+        print(f"\n⚡ [Pre-Entry] {symbol}: {action} {order_type} @ {entry} | SL={sl} TP={tp}")
+        return {
+            "action":     action,
+            "order_type": order_type,
+            "entry":      entry,
+            "sl":         sl,
+            "tp":         tp,
+            "reason":     result.get("reason", ""),
+        }
+
+    except Exception as e:
+        print(f"❌ [Pre-Entry] {symbol}: {e}")
+        return None
+
+
+# ==========================================
 # 🔥 STATE 3: ยืนยันและ Execute
 # ==========================================
 def request_execute(symbol, watch_checklist):

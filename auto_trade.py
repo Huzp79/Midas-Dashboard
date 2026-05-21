@@ -97,6 +97,71 @@ def close_mt5_position(ticket, symbol, volume, pos_type):
     print(f"✅ [Close]: ปิดไม้ #{ticket} {symbol} สำเร็จ")
     return True
 
+def place_pending_order(symbol, action, entry, sl, tp, lot):
+    """วาง Limit Order (BUY_LIMIT หรือ SELL_LIMIT) — Return ticket หรือ None"""
+    if not mt5.initialize():
+        print(f"❌ [Pending]: MT5 ไม่ตอบสนอง")
+        return None
+    order_type = mt5.ORDER_TYPE_BUY_LIMIT if action == "BUY" else mt5.ORDER_TYPE_SELL_LIMIT
+    request = {
+        "action":       mt5.TRADE_ACTION_PENDING,
+        "symbol":       symbol,
+        "volume":       float(lot),
+        "type":         order_type,
+        "price":        float(entry),
+        "sl":           float(sl) if sl else 0.0,
+        "tp":           float(tp) if tp else 0.0,
+        "deviation":    20,
+        "magic":        777777,
+        "comment":      "Midas Pre-Entry",
+        "type_time":    mt5.ORDER_TIME_GTC,
+        "type_filling": mt5.ORDER_FILLING_RETURN,
+    }
+    result = mt5.order_send(request)
+    mt5.shutdown()
+    if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
+        comment = result.comment if result else "ไม่มีการตอบสนอง"
+        print(f"❌ [Pending]: วาง {action} LIMIT ไม่สำเร็จ — {comment}")
+        return None
+    print(f"✅ [Pending]: {action} LIMIT #{result.order} | {symbol} @ {entry}")
+    return result.order
+
+def cancel_pending_order(ticket):
+    """ยกเลิก Pending Order — Return True/False"""
+    try:
+        if not mt5.initialize():
+            return False
+        result = mt5.order_send({"action": mt5.TRADE_ACTION_REMOVE, "order": ticket})
+        mt5.shutdown()
+        if result is None:
+            return False
+        ok = result.retcode == mt5.TRADE_RETCODE_DONE
+        if ok:
+            print(f"🗑️ [Pending]: ยกเลิก Order #{ticket} สำเร็จ")
+        return ok
+    except Exception as e:
+        print(f"⚠️ [Pending Cancel]: {e}")
+        return False
+
+def get_closed_trade_result(ticket):
+    """ดึงผลการเทรดที่ปิดแล้วจาก MT5 History"""
+    try:
+        if not mt5.initialize():
+            return None
+        deals = mt5.history_deals_get(position=ticket)
+        mt5.shutdown()
+        if not deals:
+            return None
+        for deal in reversed(deals):
+            if deal.entry == mt5.DEAL_ENTRY_OUT:
+                profit = deal.profit + deal.swap + deal.commission
+                result = "WIN" if profit > 0 else ("BE" if profit == 0 else "LOSS")
+                return {"exit_price": deal.price, "profit": profit, "result": result}
+        return None
+    except Exception as e:
+        print(f"⚠️ [TradeResult]: {e}")
+        return None
+
 def execute_mt5_order(action, symbol="GOLD", lot=0.01, sl=0.0, tp=0.0):
     """มือปืนลั่นไกใน MT5"""
     # 1. เชื่อมต่อ MT5

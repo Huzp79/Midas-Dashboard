@@ -158,7 +158,7 @@ def get_latest_ticket(symbol):
 
 
 # ==========================================
-# 🔍 STATE 4: เช็คว่า Trade ยังเปิดอยู่
+# 🔍 STATE 4: เช็คว่า Trade ยังเปิดอยู่ (position)
 # ==========================================
 def is_trade_open(ticket):
     try:
@@ -171,6 +171,20 @@ def is_trade_open(ticket):
     except Exception:
         return True
 
+
+# ==========================================
+# ⏳ STATE 2.5: เช็คว่า Pending Order ยังอยู่ใน Orders
+# ==========================================
+def is_pending_order_active(ticket):
+    try:
+        import MetaTrader5 as mt5
+        if not mt5.initialize():
+            return False
+        orders = mt5.orders_get(ticket=ticket)
+        mt5.shutdown()
+        return bool(orders)
+    except Exception:
+        return False
 
 # ==========================================
 # 🛡️ STATE 4: ย้าย SL to Break Even
@@ -203,6 +217,23 @@ def move_sl_to_breakeven(ticket):
     except Exception as e:
         print(f"⚠️ [BE]: {e}")
         return False
+
+# ==========================================
+# 📓 บันทึกผล Trade ที่ปิดลง Journal
+# ==========================================
+def _append_trade_result_journal(symbol, ticket, trade_result):
+    today = datetime.now().strftime("%Y-%m-%d")
+    journal_path = os.path.join("Midas_Brain", "data", "journal", f"{today}.md")
+    icon = "✅" if trade_result["result"] == "WIN" else ("🛡️" if trade_result["result"] == "BE" else "❌")
+    try:
+        with open(journal_path, "a", encoding="utf-8-sig") as f:
+            f.write(f"\n## {icon} Trade Result — {datetime.now().strftime('%H:%M:%S')}\n")
+            f.write(f"**Symbol:** {symbol} | **Ticket:** #{ticket}\n")
+            f.write(f"**Result:** {trade_result['result']} | **P&L:** {trade_result['profit']:.2f} USD\n")
+            f.write(f"**Exit Price:** {trade_result['exit_price']}\n")
+            f.write("-" * 40 + "\n")
+    except Exception as e:
+        print(f"⚠️ [Journal Result]: {e}")
 
 # ==========================================
 # 🪽 Hermes Background Thread
@@ -335,7 +366,10 @@ def main_loop():
             "prev_m5_internal":    "NONE",
             "armed_time":          0,
             "invalidate_if_above": 0,
+            "entry_zone_top":      0,
+            "entry_zone_btm":      0,
             "open_ticket":         None,
+            "pending_ticket":      None,
             "daily_trades":        0,
         }
         for sym in SYMBOLS
@@ -358,6 +392,7 @@ def main_loop():
                 states[sym]["active_bias"]     = "NONE"
                 states[sym]["watch_checklist"] = None
                 states[sym]["open_ticket"]     = None
+                states[sym]["pending_ticket"]  = None
             print(f"[{now_str}] 🌅 วันใหม่ รีเซ็ต Counter ทุก Symbol")
 
         # รัน Librarian ทุกวันจันทร์ (weekday 0)
@@ -411,6 +446,8 @@ def main_loop():
                 st["watch_checklist"]     = checklist
                 st["active_bias"]         = checklist.get("bias", zone["bias"])
                 st["invalidate_if_above"] = zone["invalidate_if_above"]
+                st["entry_zone_top"]      = zone["entry_zone_top"]
+                st["entry_zone_btm"]      = zone["entry_zone_btm"]
                 st["armed_time"]          = time.time()
                 st["prev_momentum"]       = 0.0
                 st["prev_m5_internal"]    = "NONE"
@@ -428,6 +465,18 @@ def main_loop():
                     st["watch_checklist"] = None
                     continue
 
+                # Squeeze ON + ราคาอยู่ใน Zone → Pre-Entry
+                sq_data = get_json_data(symbol, "squeeze_state", "M1")
+                if (sq_data or {}).get("squeeze_state") == "ON":
+                    m15_data = get_json_data(symbol, "smc_state", "M15")
+                    price    = (m15_data or {}).get("current_price", 0)
+                    ez_top   = st.get("entry_zone_top", 0)
+                    ez_btm   = st.get("entry_zone_btm", 0)
+                    if price and ez_top and ez_btm and ez_btm <= price <= ez_top:
+                        print(f"[{now_str}] [{symbol}] ⚡ Squeeze ON + ราคาในโซน → PRE_ENTRY")
+                        st["bot_state"] = "PRE_ENTRY"
+                        continue
+
                 all_met, results = check_watching_conditions(st, symbol)
                 status = " | ".join(f"{k}={'✅' if v else '❌'}" for k, v in results.items())
                 print(f"[{now_str}] [{symbol}] 👁️ WATCHING {st['active_bias']} | {status}")
@@ -435,6 +484,78 @@ def main_loop():
                 if all_met:
                     print(f"[{symbol}] ✅ ครบทุกเงื่อนไข! ปลุก Midas ครั้งที่ 2...")
                     st["bot_state"] = "EXECUTE"
+
+            # ─────────────────────────────────────
+            # STATE 2.5: PRE_ENTRY
+            # ─────────────────────────────────────
+            elif st["bot_state"] == "PRE_ENTRY":
+                is_inv, inv_reason = check_invalidation_watching(st, symbol)
+                if is_inv:
+                    if st.get("pending_ticket"):
+                        auto_trade.cancel_pending_order(st["pending_ticket"])
+                        auto_trade.send_telegram_message(
+                            f"🗑️ {symbol}: ยกเลิก Pending Order #{st['pending_ticket']}\n{inv_reason}"
+                        )
+                    print(f"[{now_str}] [{symbol}] ❌ PRE_ENTRY INVALIDATE: {inv_reason} → SCANNING")
+                    st["bot_state"]       = "SCANNING"
+                    st["active_bias"]     = "NONE"
+                    st["watch_checklist"] = None
+                    st["pending_ticket"]  = None
+                    continue
+
+                if not st.get("pending_ticket"):
+                    # ยังไม่มี Pending Order → ขอ Pre-Entry จาก Midas
+                    pre = brain.request_pre_entry(symbol)
+                    if not pre or pre.get("action") == "WAIT":
+                        print(f"[{now_str}] [{symbol}] ⏸️ Pre-Entry WAIT → กลับ WATCHING")
+                        st["bot_state"] = "WATCHING"
+                        continue
+
+                    action     = pre.get("action")
+                    order_type = pre.get("order_type", "PENDING")
+                    entry      = pre.get("entry")
+                    sl         = pre.get("sl")
+                    tp         = pre.get("tp")
+
+                    if order_type == "MARKET":
+                        print(f"[{now_str}] [{symbol}] ⚡ Pre-Entry MARKET → EXECUTE")
+                        st["bot_state"] = "EXECUTE"
+                    elif entry and order_type == "PENDING":
+                        lot    = brain.calculate_lot_size(symbol, entry, sl)
+                        ticket = auto_trade.place_pending_order(symbol, action, entry, sl, tp, lot)
+                        if ticket:
+                            st["pending_ticket"] = ticket
+                            auto_trade.send_telegram_message(
+                                f"⏳ {symbol}: วาง {action} LIMIT @ {entry}\n"
+                                f"SL={sl} | TP={tp} | Ticket=#{ticket}"
+                            )
+                        else:
+                            print(f"[{now_str}] [{symbol}] ❌ วาง Pending ไม่สำเร็จ → WATCHING")
+                            st["bot_state"] = "WATCHING"
+                    else:
+                        st["bot_state"] = "WATCHING"
+
+                else:
+                    # มี Pending Order แล้ว → รอ Fill
+                    pending_ticket = st["pending_ticket"]
+                    if is_trade_open(pending_ticket):
+                        # Filled! → MONITORING
+                        print(f"[{now_str}] [{symbol}] ✅ Pending #{pending_ticket} Fill → MONITORING")
+                        st["open_ticket"]    = pending_ticket
+                        st["pending_ticket"] = None
+                        st["daily_trades"]  += 1
+                        st["bot_state"]      = "MONITORING"
+                        auto_trade.send_telegram_message(
+                            f"✅ {symbol}: Pending #{pending_ticket} Fill แล้ว!\n"
+                            f"Bias={st['active_bias']} → เข้า MONITORING"
+                        )
+                    elif not is_pending_order_active(pending_ticket):
+                        # ถูกยกเลิกโดย Broker หรือหมดอายุ
+                        print(f"[{now_str}] [{symbol}] ⚠️ Pending #{pending_ticket} หมดอายุ → WATCHING")
+                        st["pending_ticket"] = None
+                        st["bot_state"]      = "WATCHING"
+                    else:
+                        print(f"[{now_str}] [{symbol}] ⏳ PRE_ENTRY: รอ Fill Pending #{pending_ticket}")
 
             # ─────────────────────────────────────
             # STATE 3: EXECUTE
@@ -485,7 +606,20 @@ def main_loop():
             elif st["bot_state"] == "MONITORING":
                 ticket = st.get("open_ticket")
                 if not ticket or not is_trade_open(ticket):
-                    print(f"[{now_str}] [{symbol}] ✅ ไม้ปิดแล้ว (TP/SL Hit) → SCANNING")
+                    if ticket:
+                        trade_result = auto_trade.get_closed_trade_result(ticket)
+                        if trade_result:
+                            icon = "✅" if trade_result["result"] == "WIN" else ("🛡️" if trade_result["result"] == "BE" else "❌")
+                            auto_trade.send_telegram_message(
+                                f"{icon} Midas Trade Closed\n\n"
+                                f"{symbol} | {trade_result['result']}\n"
+                                f"Exit: {trade_result['exit_price']}\n"
+                                f"P&L: {trade_result['profit']:.2f} USD\n"
+                                f"Ticket: #{ticket}"
+                            )
+                            _append_trade_result_journal(symbol, ticket, trade_result)
+                            print(f"[{now_str}] [{symbol}] {icon} {trade_result['result']} | P&L={trade_result['profit']:.2f}")
+                    print(f"[{now_str}] [{symbol}] ✅ ไม้ปิดแล้ว → SCANNING")
                     st["bot_state"]       = "SCANNING"
                     st["active_bias"]     = "NONE"
                     st["watch_checklist"] = None
