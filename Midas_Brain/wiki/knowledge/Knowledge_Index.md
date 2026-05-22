@@ -8,3 +8,4 @@
 
 ## Context
 - [[Macro_Framework]] — DXY, VIX, US10Y, GVZ และ News Impact
+- [[CME_Options_Knowledge]] — CME Gold Options: Max Pain, Put/Call Wall, COT, Basis, วิธีใช้ร่วม SMC

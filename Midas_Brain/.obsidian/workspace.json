@@ -182,6 +182,9 @@
   },
   "active": "9ca7c703f6b9213d",
   "lastOpenFiles": [
+    "wiki/knowledge/Knowledge_Index.md.tmp.12708.06d02faa11b5",
+    "wiki/knowledge/CME_Options_Knowledge.md",
+    "wiki/knowledge/CME_Options_Knowledge.md.tmp.12708.afc3e91a1c29",
     "data/market/cme_snapshot.json",
     "data/journal/2026-05-22.md",
     "MIDAS_REQUIREMENTS.md.tmp.25384.75a7c3102712",
@@ -196,8 +199,6 @@
     "MIDAS_REQUIREMENTS.md.tmp.25384.b9d73f24704f",
     "MIDAS_REQUIREMENTS.md.tmp.25384.ae69ffc81de7",
     "MIDAS_REQUIREMENTS.md.tmp.25384.3db81c4cf164",
-    "MIDAS_REQUIREMENTS.md.tmp.25384.262a9799e704",
-    "MIDAS_REQUIREMENTS.md.tmp.25384.c7172b7ec722",
     "data/market/CME_Daily.md",
     "data/journal/2026-05-14.md",
     "data/journal/Journal_Index.md",
@@ -217,7 +218,6 @@
     "wiki/knowledge/SMC_Concepts.md",
     "wiki/strategies/AMD_Pattern.md",
     "wiki/strategies/Killzone_Playbook.md",
-    "wiki/strategies/SMC_Core_Setup.md",
     "Untitled 1.canvas",
     "Untitled.canvas"
   ]
