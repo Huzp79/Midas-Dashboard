@@ -1,13 +1,13 @@
 {
-  "put_volume": 0,
-  "call_volume": 85,
-  "pc_ratio": null,
-  "volatility": 29.02,
-  "future_price": 4544.2,
-  "last_updated": "2026-05-22T12:00:45.223455",
-  "put_wall": 4550,
+  "put_volume": 829,
+  "call_volume": 1396,
+  "pc_ratio": 0.594,
+  "volatility": 30.86,
+  "future_price": 4520.0,
+  "last_updated": "2026-05-22T20:00:35.956869",
+  "put_wall": 4450,
   "call_wall": 5025,
-  "max_pain": 4600,
-  "put_wall_oi": 200,
-  "call_wall_oi": 506
+  "max_pain": 4575,
+  "put_wall_oi": 302,
+  "call_wall_oi": 516
 }

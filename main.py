@@ -12,7 +12,8 @@ import librarian
 
 print("🚀 [Midas Core]: กำลังบูตระบบ (SMC State Machine)...")
 
-SYMBOLS = ["GOLD", "BTCUSD", "EURUSD", "GBPJPY", "GBPUSD", "AUDUSD", "USDCAD", "USDCHF", "ETHUSD"]
+SYMBOLS        = ["GOLD", "BTCUSD", "EURUSD", "GBPJPY", "GBPUSD", "AUDUSD", "USDCAD", "USDCHF", "ETHUSD"]
+CRYPTO_SYMBOLS = ["BTCUSD", "ETHUSD"]
 
 # ==========================================
 # 🛠️ Helper: อ่าน JSON จาก MT5
@@ -312,8 +313,11 @@ def _hermes_background():
                         pos_type = info.get("pos_type", 0)
 
                         if action in ["B", "C"]:
-                            print(f"🌙 [Night Watch]: ปิดไม้ #{ticket} ({action}) — {reason}")
-                            auto_trade.close_mt5_position(ticket, symbol, volume, pos_type)
+                            if symbol in CRYPTO_SYMBOLS:
+                                print(f"🌙 [Night Watch]: Crypto #{ticket} {symbol} — ไม่ Force Close กลางคืน (Action={action}) | {reason}")
+                            else:
+                                print(f"🌙 [Night Watch]: ปิดไม้ #{ticket} ({action}) — {reason}")
+                                auto_trade.close_mt5_position(ticket, symbol, volume, pos_type)
                         elif action == "D":
                             print(f"🌙 [Night Watch]: แจ้งเจ้าของ #{ticket} — {reason}")
                             auto_trade.send_telegram_message(
@@ -429,18 +433,17 @@ def main_loop():
             librarian.run_librarian()
             librarian_ran_today = True
 
-        # เช็คเวลาทำการ (เหมือนกันทุก Symbol)
-        if not is_trading_time():
-            print(f"[{now_str}] 🌙 นอกเวลาทำการ — Midas พักผ่อน")
-            time.sleep(60)
-            continue
-
         # ==========================================
         # วนทุก Symbol
         # ==========================================
         for symbol in SYMBOLS:
             st      = states[symbol]
             now_str = datetime.now().strftime('%H:%M:%S')
+
+            # Crypto ทำงาน 24 ชั่วโมง — Forex เช็คเวลาทำการปกติ 08:00–23:30
+            if symbol not in CRYPTO_SYMBOLS and not is_trading_time():
+                print(f"[{now_str}] [{symbol}] 🌙 นอกเวลาทำการ — ข้าม")
+                continue
 
             if st["daily_trades"] >= MAX_DAILY_TRADES:
                 print(f"[{now_str}] [{symbol}] 🛑 ครบ {MAX_DAILY_TRADES} ไม้แล้ว — ข้าม")

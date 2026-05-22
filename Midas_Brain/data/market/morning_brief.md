@@ -1,84 +1,84 @@
 # 🌅 MIDAS MORNING BRIEF
-**2026-05-22 10:15 (BKK)**
+**2026-05-22 19:00 (BKK)**
 
 ## GOLD
 - **Bias:** BEARISH
-- **รอ:** Price to retest Bear OB (4570.65-4539.65) on H1 or consolidate near M30 POC (4533.91) before short entry
-- **Entry Zone:** 4539.59 – 4545.85
+- **รอ:** Price to retest Bear OB (4570.65-4539.65) on H1 or entry into M30 Bear OB (4532.8-4527.46)
+- **Entry Zone:** 4539.65 – 4570.65
 - **SL:** 4589.03
 - **TP:** 4420.55
 - **Invalidate if above:** 4589.03
-- **Note:** All timeframes bearish. H1 Bear OB with FVG (4646.7-4631.35) above price. CME Put Wall at 4527 (spot adj) provides support. COT MM net long 98k contracts suggests institutional long bias conflicts with price structure—watch for reversal. GVZ 24.59 elevated; avoid during GBP Retail Sales (6am).
+- **Note:** H4/H1/M30 all bearish. CME Put Wall at 4527 (spot-adj) provides institutional support. Max Pain 4577 suggests consolidation risk. COT MM net long 98k contracts—watch for reversal if price holds above 4577. Entry on retest of H1 Bear OB with M5 FVG (4527.66-4525.35) as confluence.
 
 ## BTCUSD
 - **Bias:** BULLISH
-- **รอ:** Retest of M15 Bull OB (76458.05-76119.45) or M1 FVG (77437.45-77414.45) for continuation entry
-- **Entry Zone:** 77414.45 – 77437.45
-- **SL:** 76119.45
-- **TP:** 78175.05
-- **Invalidate if above:** 78175.05
-- **Note:** H4 swing bullish; H1 bearish but M30/M15 bullish. Bullish sweep on M15 (1 bar ago) and M5 (3 bars ago) confirm upside momentum. M1 FVG (77437-77414) is prime entry zone. Next target: Bear OB H1 (78175.05-77856.15). Avoid shorts until price breaks below M15 Bull OB.
+- **รอ:** Pullback to M5 Bull OB (77233.75-77161.35) or M1 Bull OB (77314.25-77298.65) for entry confirmation
+- **Entry Zone:** 77161.35 – 77314.25
+- **SL:** 77029.75
+- **TP:** 82021.7
+- **Invalidate if above:** 77876.55
+- **Note:** H4 bullish swing with H1 bearish pullback. M15 bullish sweep 1 bar ago (77345.65-77298.65) confirms institutional accumulation. M5 also swept bullish 4 bars ago. Entry zone spans M5/M1 Bull OBs. Target H4 Bear OB (82021.7-81138.15). Invalidation at H1 Bear OB top (77876.55).
 
 ## EURUSD
 - **Bias:** BEARISH
-- **รอ:** Retest of M5 Bear OB (1.16133-1.16123) or M30 Bear OB (1.16194-1.16125) for short entry confirmation
-- **Entry Zone:** 1.16125 – 1.16194
+- **รอ:** Retest of H4 Bear OB (1.16603-1.16429) or M30 Bear OB (1.16194-1.16125) for short entry
+- **Entry Zone:** 1.16125 – 1.16603
 - **SL:** 1.16603
-- **TP:** 1.15828
+- **TP:** 1.15447
 - **Invalidate if above:** 1.16603
-- **Note:** All timeframes bearish. H1 MACD bearish divergence. M5 bearish sweep (2 bars ago) at 1.16101-1.16086 confirms downside. M30 FVG (1.17239-1.17224) is distal target. Avoid longs; watch for USD strength (DXY +0.08%). GBP Retail Sales (6am) may add volatility.
+- **Note:** H4/H1/M30/M5 all bearish. M1 internal bullish but overall structure bearish. No recent LQ sweeps. Entry on retest of M30 Bear OB with tight SL above 1.16603. Target H4 Bull OB (1.14869-1.14423). MACD histogram negative across all timeframes.
 
 ## GBPJPY
 - **Bias:** BULLISH
-- **รอ:** Retest of M30 Bull OB (213.433-213.275) or M15 Bull OB (212.822-212.729) for continuation entry
-- **Entry Zone:** 213.275 – 213.433
-- **SL:** 212.729
-- **TP:** 214.19
-- **Invalidate if above:** 214.19
-- **Note:** H4 swing bullish; M30/M15 bullish. M15 bearish sweep (2 bars ago) at 213.551-213.489 is minor pullback within uptrend. M30 FVG (213.23-213.199) provides support. Next target: M30 Bear OB (214.19-214.089). H1 MACD neutral; avoid shorts until price breaks M15 Bull OB.
+- **รอ:** Continuation above M15 Bull OB (213.556-213.43) or pullback to M5 Bull OB (213.382-213.262) for entry
+- **Entry Zone:** 213.262 – 213.556
+- **SL:** 212.989
+- **TP:** 213.688
+- **Invalidate if above:** 213.752
+- **Note:** H4/H1/M30/M15/M5/M1 all bullish. Strong internal structure. POC 213.5469 near current price 213.567 suggests equilibrium. Entry on pullback to M5 Bull OB (213.382-213.262) with SL below H4 Bull OB (212.989-212.611). Target M15 Bear OB (213.752-213.705).
 
 ## GBPUSD
 - **Bias:** BEARISH
-- **รอ:** Retest of M30 Bear OB (1.35315-1.35237) or M15 Bear OB (1.34399-1.34329) for short entry
-- **Entry Zone:** 1.34329 – 1.34399
-- **SL:** 1.35315
-- **TP:** 1.33739
-- **Invalidate if above:** 1.35315
-- **Note:** H4 swing bearish; H1 bearish. M15 swing bullish but internal bearish—conflicting structure. M30 FVG (1.34959-1.34863) is support zone. GBP Retail Sales (6am) high impact; avoid entry until after data. H1 MACD near zero; wait for clearer momentum.
+- **รอ:** Retest of H1 Bear OB (1.34443-1.34298) or M30 Bear OB (1.35315-1.35237) for short entry
+- **Entry Zone:** 1.34298 – 1.34443
+- **SL:** 1.34443
+- **TP:** 1.32018
+- **Invalidate if above:** 1.34443
+- **Note:** H4 bearish, H1 bearish, M30 bearish. M15/M5/M1 show mixed internal structure (M15 bullish swing but bearish internal). Entry on retest of H1 Bear OB with SL above 1.34443. Target H4 Bull OB (1.32018-1.31581). POC 1.34262 near current price suggests consolidation.
 
 ## AUDUSD
 - **Bias:** BEARISH
-- **รอ:** Retest of M30 Bear OB (0.71517-0.7149) or M15 Bear OB (0.71517-0.7149) for short entry confirmation
-- **Entry Zone:** 0.7149 – 0.71517
-- **SL:** 0.71757
-- **TP:** 0.7115
+- **รอ:** Retest of H1 Bear OB (0.71757-0.71691) or M30 Bear OB (0.71451-0.71356) for short entry
+- **Entry Zone:** 0.71356 – 0.71757
+- **SL:** 0.72305
+- **TP:** 0.68646
 - **Invalidate if above:** 0.71757
-- **Note:** H4 swing bearish; H1 bearish. M5 bearish sweep (4 bars ago) at 0.7138-0.71357 confirms downside momentum. M15 FVG (0.72022-0.71989) is distal target. M1 internal bearish; avoid longs. H1 MACD neutral; wait for retest of OB before entry.
+- **Note:** H4 bearish, H1 bearish (internal bullish), M30 bearish, M15 bullish swing but bearish internal. Entry on retest of M30 Bear OB (0.71451-0.71356) with SL above H4 Bear OB top (0.72765). Target H4 Bull OB (0.68646-0.68322). POC 0.71259 near current price 0.71202.
 
 ## USDCAD
 - **Bias:** BULLISH
-- **รอ:** Retest of M30 Bull OB (1.37756-1.37681) or M15 Bull OB (1.37766-1.37702) for continuation entry
-- **Entry Zone:** 1.37702 – 1.37766
-- **SL:** 1.37324
-- **TP:** 1.38237
-- **Invalidate if above:** 1.38237
-- **Note:** All timeframes bullish (H4/H1/M30/M15/M5/M1). Strong bullish structure with no Bear OB on M30/M15. M1 FVG (1.37879-1.37877) is tight support. Next target: H1 FVG (1.38237-1.38156). Avoid shorts; USD strength (DXY +0.08%) supports upside.
+- **รอ:** Continuation above M30 Bull OB (1.37901-1.37823) or pullback to M5 Bull OB (1.37959-1.37944) for entry
+- **Entry Zone:** 1.37823 – 1.37979
+- **SL:** 1.37503
+- **TP:** 1.38765
+- **Invalidate if above:** 1.38765
+- **Note:** H4/H1/M30/M15/M5/M1 all bullish. Strong bullish structure with no Bear OB on H1/M30/M15/M5/M1. Entry on pullback to M30 Bull OB (1.37901-1.37823) with SL below H4 Bull OB (1.37503-1.37324). Target H4 Bear OB (1.38765-1.38527). POC 1.37875 near current price 1.37979.
 
 ## USDCHF
-- **Bias:** BULLISH
-- **รอ:** Retest of M30 Bull OB (0.78403-0.78361) or M15 Bull OB (0.78663-0.78579) for continuation entry
-- **Entry Zone:** 0.78579 – 0.78663
-- **SL:** 0.78361
-- **TP:** 0.79051
-- **Invalidate if above:** 0.79051
-- **Note:** H4 swing bearish but M30/M15/M5/M1 bullish—internal structure bullish. M1 bullish with FVG (0.78616-0.7859) support. M30 FVG (0.78359-0.78306) is lower support. Next target: H1 Bear OB (0.79059-0.78988). Avoid shorts until price breaks M15 Bull OB.
+- **Bias:** BEARISH
+- **รอ:** Retest of H1 Bear OB (0.79059-0.78988) or M30 Bear OB (0.78967-0.78887) for short entry
+- **Entry Zone:** 0.78887 – 0.79059
+- **SL:** 0.79237
+- **TP:** 0.78361
+- **Invalidate if above:** 0.79059
+- **Note:** H4 bearish (internal bullish), H1 bullish swing but bearish internal, M30/M15 bearish. MACD bullish divergence on H1 suggests potential reversal. Entry on retest of M30 Bear OB (0.78967-0.78887) with SL above H4 Bear OB top (0.79237). Target H4 Bull OB (0.78517-0.78361). Monitor MACD divergence for invalidation.
 
 ## ETHUSD
 - **Bias:** BEARISH
-- **รอ:** Retest of M30 Bear OB (2145.97-2132.5) or M15 Bear OB (2145.97-2136.0) for short entry confirmation
-- **Entry Zone:** 2136.0 – 2145.97
-- **SL:** 2183.52
-- **TP:** 2100.12
-- **Invalidate if above:** 2183.52
-- **Note:** H4 swing bearish; H1 bearish. M30 swing bullish but internal bearish—conflicting. M15 swing bullish but internal bullish; M1 bullish. M15 FVG (2189.33-2182.96) is distal target. H1 MACD positive (0.578) suggests momentum may persist—wait for clearer bearish confirmation before shorting.
+- **รอ:** Retest of H1 Bear OB (2155.24-2136.75) or M30 Bear OB (2139.05-2132.81) for short entry
+- **Entry Zone:** 2132.81 – 2155.24
+- **SL:** 2196.12
+- **TP:** 2090.89
+- **Invalidate if above:** 2155.24
+- **Note:** H4/H1/M15 bearish. M30 bullish swing but bearish internal. M5 bearish swing with bullish internal. Entry on retest of M30 Bear OB (2139.05-2132.81) with SL above H1 Bear OB top (2155.24). Target H4 Bull OB (2090.89-2058.42). POC 2129.97833 near current price 2126.49 suggests consolidation zone.
 

@@ -1,13 +1,13 @@
 # 🕵️‍♂️ HERMES DAILY INTELLIGENCE REPORT
-**Date:** 2026-05-22 | **Last Updated:** 11:21:03
+**Date:** 2026-05-22 | **Last Updated:** 18:30:09
 ---
 
 ## 🌍 1. GLOBAL MARKET CONTEXT
 > **คำแนะนำ:** ใช้ข้อมูลนี้ประเมินความแข็งแกร่งของเทรนด์ก่อนตัดสินใจเข้าเทรด
 
-- **DXY (US Dollar Index):** 99.23 (0.04%)
+- **DXY (US Dollar Index):** 99.36 (0.18%)
 - **US10Y (Bond Yield 10Y):** 4.59% (0.31%)
-- **VIX (Fear Index):** 16.76 *(>20 = ตลาดผันผวนสูง)*
+- **VIX (Fear Index):** 17.03 *(>20 = ตลาดผันผวนสูง)*
 - **GVZ (Gold Volatility):** 24.59
 
 ---
