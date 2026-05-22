@@ -134,6 +134,36 @@ def write_intelligence_report(news_data, context_data):
                 f.write(f"  *คาดการณ์: {news['forecast']} | ครั้งก่อน: {news['previous']}*\n\n")
 
     print(f"✅ [Hermes]: วางแฟ้มข่าวสำเร็จ! เข้าไปดูได้ที่ {INTELLIGENCE_FILE}")
+    _fetch_and_append_cme()
+
+# ==========================================
+# 📊 CME GOLD INTELLIGENCE (06:30 BKK only)
+# ==========================================
+def _fetch_and_append_cme():
+    """ดึง CME Gold data แล้ว append ลง daily_intelligence.md — รันเฉพาะตอน 06:xx BKK"""
+    if datetime.now().hour != 6:
+        return
+    print("📊 [Hermes]: กำลังดึง CME Gold data...")
+    try:
+        import cme_scraper
+        cme_scraper.fetch_all()
+        cme_path = os.path.join(BRAIN_RAW_DIR, "CME_Daily.md")
+        if not os.path.exists(cme_path):
+            print("⚠️ [Hermes]: CME_Daily.md ไม่พบหลัง fetch_all()")
+            return
+        with open(cme_path, 'r', encoding='utf-8') as cf:
+            cme_content = cf.read()
+        with open(INTELLIGENCE_FILE, 'a', encoding='utf-8') as f:
+            f.write("\n\n---\n## 📊 3. CME GOLD INTELLIGENCE\n")
+            f.write("> **คำแนะนำ:** ใช้ Max Pain + Put/Call Wall ประกอบ Institutional Bias ก่อนตัดสินใจเข้า Gold\n\n")
+            f.write(cme_content)
+        print("✅ [Hermes]: CME data เพิ่มเข้า daily_intelligence.md แล้ว")
+    except Exception as e:
+        err = str(e)
+        if "9222" in err or "ECONNREFUSED" in err.upper() or "connect" in err.lower():
+            print("⚠️ [Hermes]: CME ข้ามไป — Chrome Debug Port 9222 ไม่ได้เปิด")
+        else:
+            print(f"⚠️ [Hermes]: CME ดึงไม่ได้ — {type(e).__name__}: {e}")
 
 # ==========================================
 # 📰 ตรวจข่าวแดงใน X นาที (Bangkok Time)
@@ -178,7 +208,7 @@ def is_high_impact_news_near(minutes=30):
 # ==========================================
 if __name__ == "__main__":
     print("===========================================")
-    print("  🪽 HERMES THE INTEL SCOUT (V1.5) ONLINE")
+    print("  🪽 HERMES THE INTEL SCOUT (V1.6) ONLINE")
     print("===========================================")
     
     # 1. ดึงข่าว
