@@ -242,9 +242,14 @@ def _hermes_background():
     HERMES_SCHEDULE      = ["06:30", "13:30", "18:30"]
     BRIEF_SCHEDULE       = ["07:00", "14:00", "19:00"]
     NIGHT_WATCH_SCHEDULE = ["00:00", "02:00"]
+    CME_OI_SCHEDULE      = ["06:00", "12:00", "18:00", "23:00"]
     hermes_last_run      = None
     brief_last_run       = None
     night_watch_last_run = None
+    cme_vol2vol_last_run = None
+    cme_oi_last_run      = None
+    cme_cot_last_run     = None
+    cme_prev_snapshot    = Hermes.load_prev_snapshot()
 
     print("🪽 [Hermes Thread]: ปลุก Hermes รอบแรก...")
     try:
@@ -269,13 +274,11 @@ def _hermes_background():
             except Exception as e:
                 print(f"⚠️ [Hermes Thread]: {e}")
 
-        # Morning Brief schedule (วิเคราะห์ตลาด + Telegram)
+        # Morning Brief schedule (วิเคราะห์ตลาด — ไม่ส่ง Telegram)
         if now_hm in BRIEF_SCHEDULE and brief_last_run != key:
             print(f"🌅 [Hermes Thread]: ถึงเวลา {now_hm} — สร้าง Morning Brief...")
             try:
-                msg = brain.morning_brief(SYMBOLS)
-                if msg:
-                    auto_trade.send_telegram_message(msg)
+                brain.morning_brief(SYMBOLS)
                 brief_last_run = key
             except Exception as e:
                 print(f"⚠️ [Brief]: {e}")
@@ -289,24 +292,16 @@ def _hermes_background():
                 nw_result = brain.night_watch(SYMBOLS)
 
                 if not nw_result:
-                    msg = f"🌙 Night Watch {label}: ไม่มีไม้เปิดอยู่"
-                    if is_final:
-                        msg += " — Midas Idle จนถึง 07:00"
-                    auto_trade.send_telegram_message(msg)
+                    print(f"🌙 [Night Watch]: {label} ไม่มีไม้เปิดอยู่")
 
                 elif not is_final:
-                    # Round 1: รายงานสรุปเท่านั้น ไม่ดำเนินการ
-                    lines = [f"🌙 Night Watch R1 ({now_hm}) — {len(nw_result)} ไม้:"]
+                    # Round 1: log เท่านั้น ไม่ส่ง Telegram
+                    print(f"🌙 Night Watch R1 ({now_hm}) — {len(nw_result)} ไม้")
                     for ticket, info in nw_result.items():
-                        lines.append(
-                            f"• #{ticket} {info.get('symbol')} | "
-                            f"Action={info.get('action')} | "
-                            f"P&L={info.get('profit', 0):.2f}"
-                        )
-                    auto_trade.send_telegram_message("\n".join(lines))
+                        print(f"  • #{ticket} {info.get('symbol')} | Action={info.get('action')} | P&L={info.get('profit', 0):.2f}")
 
                 else:
-                    # Round 2 FINAL: ดำเนินการตาม Action
+                    # Round 2 FINAL: ดำเนินการตาม Action — ส่ง Telegram เฉพาะ Action D
                     for ticket_str, info in nw_result.items():
                         ticket   = int(ticket_str)
                         action   = info.get("action", "D")
@@ -318,13 +313,7 @@ def _hermes_background():
 
                         if action in ["B", "C"]:
                             print(f"🌙 [Night Watch]: ปิดไม้ #{ticket} ({action}) — {reason}")
-                            closed = auto_trade.close_mt5_position(ticket, symbol, volume, pos_type)
-                            icon   = "✅" if closed else "❌"
-                            auto_trade.send_telegram_message(
-                                f"{icon} Night Watch ปิดไม้: {symbol} #{ticket}\n"
-                                f"Action={action} | P&L={profit:.2f}\n"
-                                f"เหตุผล: {reason}"
-                            )
+                            auto_trade.close_mt5_position(ticket, symbol, volume, pos_type)
                         elif action == "D":
                             print(f"🌙 [Night Watch]: แจ้งเจ้าของ #{ticket} — {reason}")
                             auto_trade.send_telegram_message(
@@ -339,6 +328,45 @@ def _hermes_background():
                 night_watch_last_run = key
             except Exception as e:
                 print(f"⚠️ [Night Watch]: {e}")
+
+        # CME Vol2Vol ทุกชั่วโมง (XX:00)
+        if datetime.now().strftime("%M") == "00" and cme_vol2vol_last_run != key:
+            print(f"📊 [CME Thread]: Vol2Vol รอบ {now_hm}...")
+            try:
+                snapshot = Hermes.fetch_cme_vol2vol_data()
+                if snapshot and cme_prev_snapshot:
+                    alerts = Hermes.check_cme_alerts(cme_prev_snapshot, snapshot)
+                    if alerts:
+                        brain.analyze_cme_change(alerts)
+                if snapshot:
+                    cme_prev_snapshot = snapshot
+                cme_vol2vol_last_run = key
+            except Exception as e:
+                print(f"⚠️ [CME Vol2Vol]: {e}")
+
+        # CME OI Matrix ทุก 6 ชั่วโมง (06/12/18/23)
+        if now_hm in CME_OI_SCHEDULE and cme_oi_last_run != key:
+            print(f"📊 [CME Thread]: OI Matrix รอบ {now_hm}...")
+            try:
+                oi_snap = Hermes.fetch_cme_oi_matrix_data()
+                if oi_snap and cme_prev_snapshot:
+                    alerts = Hermes.check_cme_alerts(cme_prev_snapshot, oi_snap)
+                    if alerts:
+                        brain.analyze_cme_change(alerts)
+                if oi_snap:
+                    cme_prev_snapshot = {**(cme_prev_snapshot or {}), **oi_snap}
+                cme_oi_last_run = key
+            except Exception as e:
+                print(f"⚠️ [CME OI]: {e}")
+
+        # CME COT เฉพาะวันศุกร์ 06:00
+        if now_hm == "06:00" and datetime.now().weekday() == 4 and cme_cot_last_run != key:
+            print(f"📊 [CME Thread]: COT Friday รอบ {now_hm}...")
+            try:
+                Hermes.fetch_cme_cot_data()
+                cme_cot_last_run = key
+            except Exception as e:
+                print(f"⚠️ [CME COT]: {e}")
 
         time.sleep(30)
 

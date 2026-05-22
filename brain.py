@@ -745,5 +745,98 @@ Assess each position. Output JSON with one entry per ticket:
         return {}
 
 
+# ==========================================
+# 🔔 CME Change Alert — วิเคราะห์เมื่อ CME เปลี่ยนแปลงรุนแรง
+# ==========================================
+def analyze_cme_change(alerts):
+    """รับ list of alert dicts → ถามเหตุผลจาก Claude → ส่ง Telegram ถ้า needs_action"""
+    from auto_trade import send_telegram_message
+    import MetaTrader5 as mt5
+
+    print(f"🔔 [CME Alert]: {len(alerts)} สัญญาณ...")
+
+    open_positions = []
+    try:
+        if mt5.initialize():
+            raw = mt5.positions_get()
+            if raw:
+                for pos in raw:
+                    open_positions.append({
+                        "ticket":     pos.ticket,
+                        "symbol":     pos.symbol,
+                        "type":       "BUY" if pos.type == 0 else "SELL",
+                        "open_price": round(pos.price_open, 5),
+                        "current":    round(pos.price_current, 5),
+                        "profit":     round(pos.profit, 2),
+                    })
+            mt5.shutdown()
+    except Exception:
+        pass
+
+    cme_raw   = read_file(CME_DAILY_PATH)
+    alert_str = "\n".join(f"- {a['message']}" for a in alerts)
+    pos_str   = json.dumps(open_positions, ensure_ascii=False, indent=2) if open_positions else "ไม่มี Position เปิดอยู่"
+
+    system_prompt = """You are MIDAS, monitoring significant CME Gold options changes.
+A sudden shift in options positioning may signal institutional intent change.
+CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
+
+    user_prompt = f"""[CME ALERTS — SIGNIFICANT CHANGES]:
+{alert_str}
+
+[CURRENT CME DATA]:
+{cme_raw or 'ไม่มีข้อมูล'}
+
+[OPEN POSITIONS]:
+{pos_str}
+
+Analyze:
+1. Is this a significant institutional signal?
+2. If positions are open — should owner HOLD or REVIEW?
+3. Is immediate owner action needed?
+
+Output ONLY this JSON:
+{{
+    "signal_strength": "HIGH|MEDIUM|LOW",
+    "interpretation": "อธิบายว่า CME เปลี่ยนแปลงหมายความว่าอะไร (ภาษาไทย)",
+    "position_impact": "ผลกระทบต่อไม้ที่เปิดอยู่ หรือ ไม่มีไม้เปิด (ภาษาไทย)",
+    "needs_action": true,
+    "recommendation": "สิ่งที่เจ้าของควรทำ (ภาษาไทย)"
+}}"""
+
+    try:
+        response = client.messages.create(
+            model=AI_MODEL,
+            max_tokens=400,
+            temperature=0.1,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}]
+        )
+        raw    = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
+        result = json.loads(raw)
+
+        needs_action = result.get("needs_action", False)
+        print(f"🔔 [CME Change]: {result.get('signal_strength')} | needs_action={needs_action}")
+
+        if needs_action:
+            alert_lines = "\n".join(f"• {a['message']}" for a in alerts)
+            msg = (
+                f"⚠️ CME Gold Alert\n\n"
+                f"📊 การเปลี่ยนแปลง:\n{alert_lines}\n\n"
+                f"🔍 {result.get('interpretation', '')}\n"
+            )
+            if open_positions:
+                msg += f"\n💼 ผลต่อไม้: {result.get('position_impact', '')}"
+            msg += f"\n\n🎯 {result.get('recommendation', '')}"
+            send_telegram_message(msg)
+            print("📲 [CME Change]: แจ้งเจ้าของแล้ว")
+
+        return result
+
+    except Exception as e:
+        print(f"❌ [CME Change]: {e}")
+        return None
+
+
 if __name__ == "__main__":
     think_and_trade()

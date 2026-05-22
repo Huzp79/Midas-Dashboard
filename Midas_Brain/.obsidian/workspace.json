@@ -182,6 +182,8 @@
   },
   "active": "9ca7c703f6b9213d",
   "lastOpenFiles": [
+    "data/market/cme_snapshot.json",
+    "data/journal/2026-05-22.md",
     "MIDAS_REQUIREMENTS.md.tmp.25384.75a7c3102712",
     "MIDAS_REQUIREMENTS.md.tmp.25384.de2267343977",
     "MIDAS_REQUIREMENTS.md.tmp.25384.d9f2a5c3cf1d",
@@ -196,7 +198,6 @@
     "MIDAS_REQUIREMENTS.md.tmp.25384.3db81c4cf164",
     "MIDAS_REQUIREMENTS.md.tmp.25384.262a9799e704",
     "MIDAS_REQUIREMENTS.md.tmp.25384.c7172b7ec722",
-    "MIDAS_REQUIREMENTS.md.tmp.25384.104cfb0c03cf",
     "data/market/CME_Daily.md",
     "data/journal/2026-05-14.md",
     "data/journal/Journal_Index.md",
@@ -217,7 +218,6 @@
     "wiki/strategies/AMD_Pattern.md",
     "wiki/strategies/Killzone_Playbook.md",
     "wiki/strategies/SMC_Core_Setup.md",
-    "2026-05-21.md",
     "Untitled 1.canvas",
     "Untitled.canvas"
   ]

@@ -1,3 +1,4 @@
+import json
 import requests
 import xml.etree.ElementTree as ET
 import re
@@ -8,8 +9,9 @@ import yfinance as yf
 # ==========================================
 # 🛠️ CONFIGURATION
 # ==========================================
-BRAIN_RAW_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Midas_Brain", "data", "market")
+BRAIN_RAW_DIR     = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Midas_Brain", "data", "market")
 INTELLIGENCE_FILE = os.path.join(BRAIN_RAW_DIR, "daily_intelligence.md")
+CME_SNAPSHOT_FILE = os.path.join(BRAIN_RAW_DIR, "cme_snapshot.json")
 
 # คำต้องห้าม (Blacklist) ถ้าเจอให้ขึ้นเตือนสีแดง!
 CRITICAL_KEYWORDS = ["NFP", "Non-Farm", "FOMC", "CPI", "Interest Rate", "Fed Rate", "Powell"]
@@ -202,6 +204,155 @@ def is_high_impact_news_near(minutes=30):
     except:
         pass
     return False
+
+# ==========================================
+# 📊 CME Schedule Functions
+# ==========================================
+
+def _save_cme_snapshot(data):
+    try:
+        create_directory()
+        existing = {}
+        if os.path.exists(CME_SNAPSHOT_FILE):
+            with open(CME_SNAPSHOT_FILE, 'r', encoding='utf-8') as f:
+                existing = json.load(f)
+        existing.update(data)
+        existing["last_updated"] = datetime.now().isoformat()
+        with open(CME_SNAPSHOT_FILE, 'w', encoding='utf-8') as f:
+            json.dump(existing, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"⚠️ [CME Snapshot]: {e}")
+
+
+def load_prev_snapshot():
+    """โหลด CME snapshot ล่าสุด (เรียกจาก main.py ตอนเริ่มระบบ)"""
+    try:
+        if os.path.exists(CME_SNAPSHOT_FILE):
+            with open(CME_SNAPSHOT_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return None
+
+
+def fetch_cme_vol2vol_data():
+    """ดึง Vol2Vol data — รัน ทุกชั่วโมง (XX:00)"""
+    try:
+        import cme_scraper
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as pw:
+            ctx = pw.chromium.connect_over_cdp("http://localhost:9222").contexts[0]
+            d = cme_scraper._run_vol2vol(ctx)
+
+        pc_ratio = None
+        if d.get("put_volume") and d.get("call_volume") and d["call_volume"] > 0:
+            pc_ratio = round(d["put_volume"] / d["call_volume"], 3)
+
+        snapshot = {
+            "put_volume":   d.get("put_volume"),
+            "call_volume":  d.get("call_volume"),
+            "pc_ratio":     pc_ratio,
+            "volatility":   d.get("volatility"),
+            "future_price": d.get("future_price"),
+        }
+        _save_cme_snapshot(snapshot)
+        print(f"✅ [CME Vol2Vol]: PC Ratio={pc_ratio} | Fut={d.get('future_price')}")
+        return snapshot
+    except Exception as e:
+        err = str(e)
+        if "9222" in err or "connect" in err.lower():
+            print("⚠️ [CME Vol2Vol]: Chrome Debug Port 9222 ไม่ได้เปิด")
+        else:
+            print(f"⚠️ [CME Vol2Vol]: {e}")
+        return None
+
+
+def fetch_cme_oi_matrix_data():
+    """ดึง OI Matrix data — รัน ทุก 6 ชั่วโมง (06/12/18/23)"""
+    import cme_scraper
+    import time as _time
+    from playwright.sync_api import sync_playwright
+
+    for attempt in range(1, 4):
+        try:
+            _time.sleep(3 * attempt)  # ให้ Chrome ตั้งตัวก่อน โดยเฉพาะหลัง Vol2Vol
+            with sync_playwright() as pw:
+                ctx = pw.chromium.connect_over_cdp("http://localhost:9222").contexts[0]
+                d = cme_scraper._run_oi_heatmap(ctx)
+
+            snapshot = {
+                "put_wall":     d.get("put_wall"),
+                "call_wall":    d.get("call_wall"),
+                "max_pain":     d.get("max_pain"),
+                "put_wall_oi":  d.get("put_wall_oi"),
+                "call_wall_oi": d.get("call_wall_oi"),
+            }
+            _save_cme_snapshot(snapshot)
+            print(f"✅ [CME OI]: Put Wall={d.get('put_wall')} | Call Wall={d.get('call_wall')}")
+            return snapshot
+        except Exception as e:
+            err = str(e)
+            if "9222" in err or "connect" in err.lower():
+                print("⚠️ [CME OI]: Chrome Debug Port 9222 ไม่ได้เปิด")
+                return None
+            print(f"⚠️ [CME OI] attempt {attempt}/3: {e}")
+    return None
+
+
+def fetch_cme_cot_data():
+    """ดึง COT data — รัน เฉพาะวันศุกร์ 06:00"""
+    try:
+        import cme_scraper
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as pw:
+            ctx = pw.chromium.connect_over_cdp("http://localhost:9222").contexts[0]
+            d = cme_scraper._run_cot(ctx)
+        print(f"✅ [CME COT]: MM Net={d.get('mm_net'):,}")
+        return d
+    except Exception as e:
+        err = str(e)
+        if "9222" in err or "connect" in err.lower():
+            print("⚠️ [CME COT]: Chrome Debug Port 9222 ไม่ได้เปิด")
+        else:
+            print(f"⚠️ [CME COT]: {e}")
+        return None
+
+
+def check_cme_alerts(prev_snapshot, current_snapshot):
+    """เปรียบเทียบ snapshot — Return list of alerts หรือ None ถ้าไม่มีอะไรเปลี่ยน"""
+    alerts = []
+
+    # Put/Call Ratio เปลี่ยน > 0.3
+    prev_pc = prev_snapshot.get("pc_ratio")
+    curr_pc = current_snapshot.get("pc_ratio")
+    if prev_pc is not None and curr_pc is not None:
+        change = abs(curr_pc - prev_pc)
+        if change > 0.3:
+            alerts.append({
+                "type":    "pc_ratio",
+                "prev":    prev_pc,
+                "current": curr_pc,
+                "change":  round(change, 3),
+                "message": f"Put/Call Ratio เปลี่ยน {change:.3f} ({prev_pc} → {curr_pc})",
+            })
+
+    # OI Wall ย้าย > 50 points
+    for wall in ["put_wall", "call_wall"]:
+        prev_w = prev_snapshot.get(wall)
+        curr_w = current_snapshot.get(wall)
+        if prev_w is not None and curr_w is not None:
+            move = abs(curr_w - prev_w)
+            if move > 50:
+                alerts.append({
+                    "type":    wall,
+                    "prev":    prev_w,
+                    "current": curr_w,
+                    "move":    move,
+                    "message": f"{wall.replace('_', ' ').title()} ย้าย {move:.0f} pts ({prev_w} → {curr_w})",
+                })
+
+    return alerts if alerts else None
+
 
 # ==========================================
 # 🚀 MAIN EXECUTION
