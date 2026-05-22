@@ -213,9 +213,7 @@ You think like an experienced SMC trader who reads charts holistically — not a
 Python handles all math (Entry, SL, TP). Your job: structure analysis and timing judgment only.
 CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
 
-    user_prompt = f"""[CONSTITUTION & RULES]:
-{constitution}
-{intel_section}
+    user_prompt = f"""{intel_section}
 
 [MARKET DATA]:
 {market_data}
@@ -262,8 +260,12 @@ Output JSON เท่านั้น (ห้ามใส่ entry, sl, tp — Py
             model=AI_MODEL,
             max_tokens=600,
             temperature=0.1,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
+            system=[
+                {"type": "text", "text": constitution, "cache_control": {"type": "ephemeral"}},
+                {"type": "text", "text": system_prompt}
+            ],
+            messages=[{"role": "user", "content": user_prompt}],
+            betas=["prompt-caching-2024-07-31"]
         )
 
         raw = response.content[0].text.strip().replace("```json","").replace("```","").strip()
@@ -324,6 +326,7 @@ def morning_brief(symbols):
         print("⚠️ [Morning Brief]: ไม่มีข้อมูลตลาด ยกเลิก")
         return None
 
+    constitution  = read_file(CONSTITUTION_PATH) or ""
     intelligence  = read_file(INTELLIGENCE_PATH)
     intel_section = f"\n[HERMES INTELLIGENCE]:\n{intelligence}" if intelligence else ""
 
@@ -377,8 +380,12 @@ Output ONLY this JSON (fill numeric values, remove placeholder text):
             model=AI_MODEL,
             max_tokens=2500,
             temperature=0.1,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
+            system=[
+                {"type": "text", "text": constitution, "cache_control": {"type": "ephemeral"}},
+                {"type": "text", "text": system_prompt}
+            ],
+            messages=[{"role": "user", "content": user_prompt}],
+            betas=["prompt-caching-2024-07-31"]
         )
 
         raw   = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
@@ -450,10 +457,7 @@ def request_watch_checklist(symbol):
 Price has entered the watch zone from the Morning Brief. Analyze market structure and return a watch checklist.
 CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
 
-    user_prompt = f"""[CONSTITUTION & RULES]:
-{constitution}
-
-[MARKET DATA]:
+    user_prompt = f"""[MARKET DATA]:
 {market_data}
 
 Price has entered the Entry Zone identified in the Morning Brief.
@@ -476,8 +480,12 @@ Output ONLY this JSON:
             model=AI_MODEL,
             max_tokens=400,
             temperature=0.1,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
+            system=[
+                {"type": "text", "text": constitution, "cache_control": {"type": "ephemeral"}},
+                {"type": "text", "text": system_prompt}
+            ],
+            messages=[{"role": "user", "content": user_prompt}],
+            betas=["prompt-caching-2024-07-31"]
         )
         raw    = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
         result = json.loads(raw)
@@ -504,10 +512,7 @@ Squeeze momentum is building (state=ON) and price is inside the Entry Zone.
 Decide whether to place a Pending Limit Order at the OB level now.
 CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
 
-    user_prompt = f"""[CONSTITUTION & RULES]:
-{constitution}
-
-[MARKET DATA]:
+    user_prompt = f"""[MARKET DATA]:
 {market_data}
 
 CONTEXT: Squeeze state=ON (momentum building). Price is currently inside the Entry Zone.
@@ -529,8 +534,12 @@ Output ONLY this JSON:
             model=AI_MODEL,
             max_tokens=250,
             temperature=0.1,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
+            system=[
+                {"type": "text", "text": constitution, "cache_control": {"type": "ephemeral"}},
+                {"type": "text", "text": system_prompt}
+            ],
+            messages=[{"role": "user", "content": user_prompt}],
+            betas=["prompt-caching-2024-07-31"]
         )
         raw    = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
         result = json.loads(raw)
@@ -578,10 +587,7 @@ def request_execute(symbol, watch_checklist):
 All trigger conditions have been confirmed by Python. Do a final sanity check and execute.
 CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
 
-    user_prompt = f"""[CONSTITUTION & RULES]:
-{constitution}
-
-[MARKET DATA]:
+    user_prompt = f"""[MARKET DATA]:
 {market_data}
 
 [WATCH CHECKLIST — ALL CONDITIONS MET BY PYTHON]:
@@ -605,8 +611,12 @@ Output ONLY this JSON (ห้ามใส่ entry, sl, tp — Python คำน�
             model=AI_MODEL,
             max_tokens=400,
             temperature=0.1,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
+            system=[
+                {"type": "text", "text": constitution, "cache_control": {"type": "ephemeral"}},
+                {"type": "text", "text": system_prompt}
+            ],
+            messages=[{"role": "user", "content": user_prompt}],
+            betas=["prompt-caching-2024-07-31"]
         )
         raw      = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
         decision = json.loads(raw)
@@ -690,6 +700,8 @@ def night_watch(symbols):
         for t in pos_meta
     )
 
+    constitution = read_file(CONSTITUTION_PATH) or ""
+
     system_prompt = """You are MIDAS Night Watch, monitoring open trading positions overnight.
 Assess each position and decide:
 A = HOLD (profitable + structure intact + safe overnight)
@@ -714,8 +726,12 @@ Assess each position. Output JSON with one entry per ticket:
             model=AI_MODEL,
             max_tokens=500,
             temperature=0.1,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
+            system=[
+                {"type": "text", "text": constitution, "cache_control": {"type": "ephemeral"}},
+                {"type": "text", "text": system_prompt}
+            ],
+            messages=[{"role": "user", "content": user_prompt}],
+            betas=["prompt-caching-2024-07-31"]
         )
 
         raw    = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
@@ -773,9 +789,10 @@ def analyze_cme_change(alerts):
     except Exception:
         pass
 
-    cme_raw   = read_file(CME_DAILY_PATH)
-    alert_str = "\n".join(f"- {a['message']}" for a in alerts)
-    pos_str   = json.dumps(open_positions, ensure_ascii=False, indent=2) if open_positions else "ไม่มี Position เปิดอยู่"
+    cme_raw      = read_file(CME_DAILY_PATH)
+    constitution = read_file(CONSTITUTION_PATH) or ""
+    alert_str    = "\n".join(f"- {a['message']}" for a in alerts)
+    pos_str      = json.dumps(open_positions, ensure_ascii=False, indent=2) if open_positions else "ไม่มี Position เปิดอยู่"
 
     system_prompt = """You are MIDAS, monitoring significant CME Gold options changes.
 A sudden shift in options positioning may signal institutional intent change.
@@ -809,8 +826,12 @@ Output ONLY this JSON:
             model=AI_MODEL,
             max_tokens=400,
             temperature=0.1,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
+            system=[
+                {"type": "text", "text": constitution, "cache_control": {"type": "ephemeral"}},
+                {"type": "text", "text": system_prompt}
+            ],
+            messages=[{"role": "user", "content": user_prompt}],
+            betas=["prompt-caching-2024-07-31"]
         )
         raw    = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
         result = json.loads(raw)
