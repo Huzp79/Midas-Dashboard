@@ -24,9 +24,10 @@ AI_MODEL = "claude-haiku-4-5-20251001"
 # ==========================================
 BASE_DIR          = "Midas_Brain"
 CONSTITUTION_PATH = os.path.join(BASE_DIR, "00_Midas_Constitution.md")
-INTELLIGENCE_PATH  = os.path.join(BASE_DIR, "data", "market", "daily_intelligence.md")
-MORNING_BRIEF_PATH     = os.path.join(BASE_DIR, "data", "market", "morning_brief.md")
+INTELLIGENCE_PATH       = os.path.join(BASE_DIR, "data", "market", "daily_intelligence.md")
+MORNING_BRIEF_PATH      = os.path.join(BASE_DIR, "data", "market", "morning_brief.md")
 MORNING_BRIEF_JSON_PATH = os.path.join(BASE_DIR, "data", "market", "morning_brief.json")
+CME_DAILY_PATH          = os.path.join(BASE_DIR, "data", "market", "CME_Daily.md")
 
 PRICE_FILTERS = {
     "GOLD":   100,
@@ -326,6 +327,21 @@ def morning_brief(symbols):
     intelligence  = read_file(INTELLIGENCE_PATH)
     intel_section = f"\n[HERMES INTELLIGENCE]:\n{intelligence}" if intelligence else ""
 
+    cme_raw = read_file(CME_DAILY_PATH)
+    cme_section = (
+        "\n[CME GOLD OPTIONS INTELLIGENCE (ใช้กับ GOLD เท่านั้น)]:\n"
+        + cme_raw
+        + "\nวิธีใช้ CME Data ใน Entry Planning:\n"
+        + "- Put Wall (Spot adj) = Strike ที่ Put OI สูงสุด → แรงรับ Institutional"
+          " ถ้า GOLD อยู่เหนือ Put Wall และ Bias BULLISH → Entry Zone แข็งแกร่ง\n"
+        + "- Call Wall (Spot adj) = Strike ที่ Call OI สูงสุด → แรงต้าน Institutional"
+          " ระวังหากราคาวิ่งชน Call Wall โดยไม่มี OB รองรับ\n"
+        + "- Max Pain (Spot adj) = Strike ที่ทำให้ Options Value รวมต่ำสุด"
+          " → ตลาดมักดึงราคากลับหา Max Pain ก่อน Expiry ถ้า GOLD ห่าง Max Pain มากให้ระวัง Reversal\n"
+        + "- ระดับทั้งหมด Spot-adjusted แล้ว (หัก Basis จาก GC Futures) เทียบกับ MT5 ได้โดยตรง\n"
+        + "- COT MM Net > 0 = Institutional Long > Short → เสริม BULLISH Bias\n"
+    ) if cme_raw else ""
+
     sym_lines = "\n".join(
         f'  "{s}": {{"bias": "BULLISH|BEARISH|WAIT", "wait_for": "...", '
         f'"entry_zone_top": 0.0, "entry_zone_btm": 0.0, '
@@ -342,7 +358,7 @@ CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra
     user_prompt = f"""[MARKET DATA]:
 {sections_str}
 {intel_section}
-
+{cme_section}
 For each symbol assess bias and identify key levels from actual OB/FVG/Swing High/Low in the data.
 Rules:
 - entry_zone_top / entry_zone_btm: the OB or FVG zone to watch for entry (aligned with bias)
