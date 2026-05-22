@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "data/journal/Journal_Index.md",
+                "file": "wiki/knowledge/SMC_Concepts.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Journal_Index"
+              "title": "SMC_Concepts"
             }
           }
         ]
@@ -182,43 +182,43 @@
   },
   "active": "9ca7c703f6b9213d",
   "lastOpenFiles": [
-    "MIDAS_REQUIREMENTS.md.tmp.7808.cb9f1cc7aaa1",
-    "MIDAS_REQUIREMENTS.md.tmp.7808.cc3680cd3ea9",
-    "MIDAS_REQUIREMENTS.md.tmp.7808.f9ef239abe1c",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.75a7c3102712",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.de2267343977",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.d9f2a5c3cf1d",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.dac5f8badc32",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.1979e9e725b1",
+    "wiki/knowledge/Market_Psychology.md",
+    "wiki/knowledge/Macro_Framework.md",
+    "data/market/morning_brief.md",
+    "data/journal/2026-05-15.md",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.b9d73f24704f",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.ae69ffc81de7",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.3db81c4cf164",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.262a9799e704",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.c7172b7ec722",
+    "MIDAS_REQUIREMENTS.md.tmp.25384.104cfb0c03cf",
+    "data/market/CME_Daily.md",
+    "data/journal/2026-05-14.md",
+    "data/journal/Journal_Index.md",
     "data/journal/2026-05-21.md",
     "data/market/daily_intelligence.md",
     "data/market/Market_Data_Index.md",
-    "MIDAS_REQUIREMENTS.md.tmp.7808.4f32d6ce77c1",
     "data/market/latest_data_ETHUSD.md",
     "data/market/latest_data_USDCHF.md",
     "data/market/latest_data_USDCAD.md",
     "data/market/latest_data_AUDUSD.md",
     "data/market/latest_data_GBPUSD.md",
-    "data/market/morning_brief.json",
-    "00_Midas_Constitution.md.tmp.7808.8313f6e0ff1b",
-    "00_Midas_Constitution.md.tmp.7808.4cc39f3d1f3e",
-    "00_Midas_Constitution.md.tmp.7808.5efd46aca350",
-    "MIDAS_REQUIREMENTS.md.tmp.18460.0a5223be4adb",
-    "MIDAS_REQUIREMENTS.md.tmp.18460.e7eb63df40ec",
-    "MIDAS_REQUIREMENTS.md.tmp.18460.555a8094abd5",
     "00_Midas_Constitution.md",
     "wiki/lessons/Lessons_Index.md",
-    "data/journal/Journal_Index.md",
     "wiki/knowledge/Knowledge_Index.md",
     "wiki/strategies/Strategies_Index.md",
     "00_Dashboard.md",
     "wiki/knowledge/SMC_Concepts.md",
-    "wiki/knowledge/Market_Psychology.md",
-    "wiki/knowledge/Macro_Framework.md",
     "wiki/strategies/AMD_Pattern.md",
     "wiki/strategies/Killzone_Playbook.md",
     "wiki/strategies/SMC_Core_Setup.md",
     "2026-05-21.md",
     "Untitled 1.canvas",
-    "Untitled.canvas",
-    "data/journal/2026-05-20.md",
-    "data/journal/2026-05-17.md",
-    "data/journal/2026-05-15.md",
-    "data/journal/2026-05-14.md"
+    "Untitled.canvas"
   ]
 }
