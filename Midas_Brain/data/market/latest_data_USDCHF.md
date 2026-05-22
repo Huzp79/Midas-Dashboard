@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - USDCHF
-**Updated:** 2026-05-22 12:05:32
+**Updated:** 2026-05-22 12:16:48
 
 ## ⏳ H4
 - **[SMC]:** Price=0.78621 | Swing=BEARISH | Internal=BULLISH
@@ -10,7 +10,7 @@
 - **[SMC]:** Price=0.78621 | Swing=BULLISH | Internal=BEARISH
   - 🟢 Bull OB(0.78428-0.78361) FVG(0.0-0.0)
   - 🔴 Bear OB(0.79059-0.78988) FVG(0.78871-0.78756)
-- **[MACD]:** Divergence=NONE | Hist=-8e-05
+- **[MACD]:** Divergence=NONE | Hist=-7e-05
 
 ## ⏳ M30
 - **[SMC]:** Price=0.78621 | Swing=BULLISH | Internal=BULLISH
@@ -18,21 +18,21 @@
   - 🔴 Bear OB(0.79051-0.79012) FVG(0.0-0.0)
 
 ## ⏳ M15
-- **[SMC]:** Price=0.78621 | Swing=BEARISH | Internal=BEARISH
+- **[SMC]:** Price=0.78623 | Swing=BEARISH | Internal=BEARISH
   - 🟢 Bull OB(0.78663-0.78579) FVG(0.0-0.0)
   - 🔴 Bear OB(0.78698-0.78683) FVG(0.0-0.0)
 - **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(0.0-0.0) 🔴(0.78667-0.78642)
-- **[Volume Profile]:** POC=0.78671 | VAL=0.78584 VAH=0.78778
+- **[Volume Profile]:** POC=0.78671 | VAL=0.78584 VAH=0.78797
 
 ## ⏳ M5
-- **[SMC]:** Price=0.78616 | Swing=BULLISH | Internal=BEARISH
+- **[SMC]:** Price=0.78623 | Swing=BULLISH | Internal=BEARISH
   - 🟢 Bull OB(0.78613-0.78566) FVG(0.0-0.0)
   - 🔴 Bear OB(0.78642-0.78634) FVG(0.78876-0.78811)
 - **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(0.0-0.0) 🔴(0.78631-0.78621)
 
 ## ⏳ M1
-- **[SMC]:** Price=0.78616 | Swing=BEARISH | Internal=BEARISH
-  - 🟢 Bull OB(0.78591-0.78568) FVG(0.0-0.0)
-  - 🔴 Bear OB(0.78642-0.78634) FVG(0.78652-0.78645)
-- **[Squeeze]:** State=OFF | is_firing_now=False | Direction=NONE | bars_since=-1
+- **[SMC]:** Price=0.78623 | Swing=BEARISH | Internal=BEARISH
+  - 🟢 Bull OB(0.78591-0.78568) FVG(0.7862-0.78619)
+  - 🔴 Bear OB(0.78624-0.78619) FVG(0.78652-0.78645)
+- **[Squeeze]:** State=OFF | is_firing_now=True | Direction=BULLISH | bars_since=2
 

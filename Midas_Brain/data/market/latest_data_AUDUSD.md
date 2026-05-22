@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - AUDUSD
-**Updated:** 2026-05-22 12:05:32
+**Updated:** 2026-05-22 12:16:48
 
 ## ⏳ H4
 - **[SMC]:** Price=0.71393 | Swing=BEARISH | Internal=BEARISH
@@ -18,21 +18,21 @@
   - 🔴 Bear OB(0.71517-0.7149) FVG(0.72001-0.71989)
 
 ## ⏳ M15
-- **[SMC]:** Price=0.71393 | Swing=BULLISH | Internal=BEARISH
+- **[SMC]:** Price=0.71412 | Swing=BULLISH | Internal=BEARISH
   - 🟢 Bull OB(0.71225-0.7115) FVG(0.0-0.0)
   - 🔴 Bear OB(0.71432-0.71357) FVG(0.72022-0.71989)
 - **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(0.0-0.0) 🔴(0.0-0.0)
 - **[Volume Profile]:** POC=0.71259 | VAL=0.71102 VAH=0.71502
 
 ## ⏳ M5
-- **[SMC]:** Price=0.71402 | Swing=BULLISH | Internal=BEARISH
-  - 🟢 Bull OB(0.71189-0.7115) FVG(0.0-0.0)
+- **[SMC]:** Price=0.71412 | Swing=BULLISH | Internal=BULLISH
+  - 🟢 Bull OB(0.71389-0.71373) FVG(0.0-0.0)
   - 🔴 Bear OB(0.71425-0.71412) FVG(0.0-0.0)
-- **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(0.0-0.0) 🔴(0.0-0.0)
+- **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(0.71411-0.71402) 🔴(0.0-0.0)
 
 ## ⏳ M1
-- **[SMC]:** Price=0.71402 | Swing=BEARISH | Internal=BULLISH
-  - 🟢 Bull OB(0.7139-0.71388) FVG(0.0-0.0)
-  - 🔴 Bear OB(0.71411-0.71407) FVG(0.71479-0.71475)
+- **[SMC]:** Price=0.71413 | Swing=BEARISH | Internal=BULLISH
+  - 🟢 Bull OB(0.7139-0.71388) FVG(0.71402-0.71397)
+  - 🔴 Bear OB(0.71425-0.71416) FVG(0.71479-0.71475)
 - **[Squeeze]:** State=OFF | is_firing_now=False | Direction=NONE | bars_since=-1
 
