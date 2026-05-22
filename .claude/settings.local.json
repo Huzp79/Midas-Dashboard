@@ -5,7 +5,11 @@
       "Bash(git commit *)",
       "Bash(python inspect_oi.py)",
       "Bash(python cme_scraper.py oi)",
-      "Bash(python inspect_cot.py)"
+      "Bash(python inspect_cot.py)",
+      "Bash(python -c \"import flask; print\\('Flask', flask.__version__\\)\")",
+      "Bash(pip install *)",
+      "Bash(python -c \"import dashboard; print\\('OK - no import errors'\\)\")",
+      "Bash(python -c \"import dashboard; print\\('OK'\\)\")"
     ]
   }
 }

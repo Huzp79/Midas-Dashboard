@@ -250,22 +250,70 @@ def base_page(title, body, refresh=30):
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <style>
-  body {{ background:#0d1117; color:#e6edf3; font-family:'Segoe UI',sans-serif; }}
-  .navbar {{ background:#161b22!important; border-bottom:1px solid #30363d; }}
-  .card {{ background:#161b22; border:1px solid #30363d; }}
-  .card-header {{ background:#1f2937; border-bottom:1px solid #30363d; font-weight:600; }}
-  .table {{ color:#e6edf3; }}
-  .table-dark {{ --bs-table-bg:#161b22; --bs-table-border-color:#30363d; }}
-  .badge-bullish {{ background:#1a4731; color:#3fb950; }}
-  .badge-bearish {{ background:#4d1a1a; color:#f85149; }}
-  .badge-neutral  {{ background:#2d2d2d; color:#8b949e; }}
-  .profit  {{ color:#3fb950; }}
-  .loss    {{ color:#f85149; }}
-  .neutral {{ color:#8b949e; }}
+  /* ── Base ─────────────────────────────────────── */
+  body {{ background:#0d1117; color:#FFFFFF; font-family:'Segoe UI',sans-serif; }}
+
+  /* ── Headings ─────────────────────────────────── */
+  h1,h2,h3,h4,h5,h6 {{ color:#FFFFFF!important; }}
+
+  /* ── All inline text defaults ─────────────────── */
+  p, span, div, li, a {{ color:inherit; }}
+  small {{ color:#AAAAAA!important; }}
+
+  /* ── Navbar ───────────────────────────────────── */
+  .navbar {{ background:#161b22!important; border-bottom:1px solid #2d3748; }}
+  .nav-link {{ color:#CCCCCC!important; }}
+  .nav-link.active, .nav-link.fw-bold {{ color:#FFFFFF!important; }}
+  .navbar-brand {{ color:#FFFFFF!important; }}
+
+  /* ── Cards ────────────────────────────────────── */
+  .card {{ background:#1E2530; border:1px solid #2d3748; color:#FFFFFF; }}
+  .card-header {{ background:#151C28!important; border-bottom:1px solid #2d3748; font-weight:600; color:#FFFFFF!important; }}
+  .card-body {{ color:#FFFFFF; }}
+
+  /* ── Tables ───────────────────────────────────── */
+  .table {{ color:#FFFFFF!important; }}
+  .table th {{ color:#CCCCCC!important; background:#151C28!important; border-color:#2d3748!important; }}
+  .table td {{ color:#FFFFFF!important; border-color:#2d3748!important; }}
+  .table-dark {{ --bs-table-bg:#1E2530; --bs-table-border-color:#2d3748; --bs-table-color:#FFFFFF; }}
+  .table-dark th {{ color:#CCCCCC!important; background:#151C28!important; border-color:#2d3748!important; }}
+  .table-dark td {{ color:#FFFFFF!important; border-color:#2d3748!important; }}
+  .table-hover>tbody>tr:hover>td {{ background:rgba(255,255,255,.04)!important; color:#FFFFFF!important; }}
+
+  /* ── Stat cards ───────────────────────────────── */
   .stat-card {{ border-left:4px solid #58a6ff; }}
-  .stat-val  {{ font-size:1.6rem; font-weight:700; }}
-  .refresh-badge {{ font-size:.75rem; color:#8b949e; }}
-  pre {{ color:#e6edf3; background:#0d1117; border:1px solid #30363d; border-radius:6px; padding:12px; font-size:.82rem; max-height:400px; overflow-y:auto; }}
+  .stat-val {{ font-size:1.6rem; font-weight:700; color:#FFFFFF!important; }}
+  .stat-label {{ color:#AAAAAA!important; font-size:.85rem; }}
+
+  /* ── Semantic colors ──────────────────────────── */
+  .profit  {{ color:#00FF88!important; }}
+  .loss    {{ color:#FF4444!important; }}
+  .neutral {{ color:#868E96!important; }}
+
+  /* ── Badges ───────────────────────────────────── */
+  .badge-bullish {{ background:#1a3d20; color:#51CF66!important; font-weight:600; }}
+  .badge-bearish {{ background:#3d1515; color:#FF6B6B!important; font-weight:600; }}
+  .badge-neutral  {{ background:#2a2a2a; color:#868E96!important; font-weight:600; }}
+
+  /* ── Bootstrap color-utility overrides ───────── */
+  .text-muted   {{ color:#AAAAAA!important; }}
+  .text-success {{ color:#00FF88!important; }}
+  .text-danger  {{ color:#FF4444!important; }}
+  .text-info    {{ color:#79c0ff!important; }}
+  .text-warning {{ color:#f0883e!important; }}
+  .text-center  {{ color:inherit; }}
+  .fw-bold, strong {{ color:inherit; }}
+
+  /* ── Alerts ───────────────────────────────────── */
+  .alert {{ color:#FFFFFF!important; }}
+  .alert-warning {{ background:#2a2000!important; color:#FFDD57!important; border-color:#5a4500!important; }}
+
+  /* ── Misc ─────────────────────────────────────── */
+  .refresh-badge {{ font-size:.75rem; color:#868E96; }}
+  pre {{ color:#FFFFFF; background:#0d1117; border:1px solid #2d3748; border-radius:6px; padding:12px; font-size:.82rem; max-height:400px; overflow-y:auto; }}
+  hr {{ border-color:#2d3748; opacity:1; }}
+  .display-5 {{ color:inherit; }}
+  .fs-3,.fs-4,.fs-5,.fs-6 {{ color:inherit; }}
 </style>
 </head>
 <body>
@@ -309,24 +357,24 @@ def overview():
         acct_html = f"""
 <div class="row g-3 mb-3">
   <div class="col-md-3"><div class="card stat-card h-100 p-3">
-    <div class="text-muted small">Balance</div>
-    <div class="stat-val">${acct['balance']:,.2f}</div>
-    <div class="text-muted small">{acct['currency']} · {acct['server']}</div>
+    <div style="color:#AAAAAA;font-size:.85rem">Balance</div>
+    <div class="stat-val" style="color:#FFFFFF!important">${acct['balance']:,.2f}</div>
+    <div style="color:#AAAAAA;font-size:.85rem">{acct['currency']} · {acct['server']}</div>
   </div></div>
   <div class="col-md-3"><div class="card stat-card h-100 p-3" style="border-left-color:#3fb950">
-    <div class="text-muted small">Equity</div>
-    <div class="stat-val">${acct['equity']:,.2f}</div>
-    <div class="text-muted small">Free Margin: ${acct['free_margin']:,.2f}</div>
+    <div style="color:#AAAAAA;font-size:.85rem">Equity</div>
+    <div class="stat-val" style="color:#FFFFFF!important">${acct['equity']:,.2f}</div>
+    <div style="color:#AAAAAA;font-size:.85rem">Free Margin: ${acct['free_margin']:,.2f}</div>
   </div></div>
   <div class="col-md-3"><div class="card stat-card h-100 p-3" style="border-left-color:{'#3fb950' if acct['profit']>=0 else '#f85149'}">
-    <div class="text-muted small">Floating P&L</div>
-    <div class="stat-val {profit_cls}">${acct['profit']:+,.2f}</div>
-    <div class="text-muted small">{len(positions)} open position(s)</div>
+    <div style="color:#AAAAAA;font-size:.85rem">Floating P&L</div>
+    <div class="stat-val {profit_cls}" style="color:#FFFFFF!important">${acct['profit']:+,.2f}</div>
+    <div style="color:#AAAAAA;font-size:.85rem">{len(positions)} open position(s)</div>
   </div></div>
   <div class="col-md-3"><div class="card stat-card h-100 p-3" style="border-left-color:#f0883e">
-    <div class="text-muted small">Today</div>
-    <div class="stat-val">{today['trades']} trades</div>
-    <div class="text-muted small">{today['wins']} wins · {today['waits']} scans</div>
+    <div style="color:#AAAAAA;font-size:.85rem">Today</div>
+    <div class="stat-val" style="color:#FFFFFF!important">{today['trades']} trades</div>
+    <div style="color:#AAAAAA;font-size:.85rem">{today['wins']} wins · {today['waits']} scans</div>
   </div></div>
 </div>"""
     else:
@@ -339,33 +387,33 @@ def overview():
             pc = "profit" if p["profit"] >= 0 else "loss"
             tc = "text-success" if p["type"] == "BUY" else "text-danger"
             rows += f"""<tr>
-  <td class="text-muted">{p['ticket']}</td>
-  <td><strong>{p['symbol']}</strong></td>
-  <td class="{tc} fw-bold">{p['type']}</td>
-  <td>{p['volume']}</td>
-  <td>{p['open_price']}</td>
-  <td>{p['current']}</td>
-  <td class="text-danger">{p['sl']}</td>
-  <td class="text-success">{p['tp']}</td>
-  <td class="{pc} fw-bold">${p['profit']:+,.2f}</td>
-  <td class="text-muted">{p['open_time']}</td>
+  <td class="text-muted" style="color:#FFFFFF!important">{p['ticket']}</td>
+  <td style="color:#FFFFFF!important"><strong>{p['symbol']}</strong></td>
+  <td class="{tc} fw-bold" style="color:#FFFFFF!important">{p['type']}</td>
+  <td style="color:#FFFFFF!important">{p['volume']}</td>
+  <td style="color:#FFFFFF!important">{p['open_price']}</td>
+  <td style="color:#FFFFFF!important">{p['current']}</td>
+  <td class="text-danger" style="color:#FFFFFF!important">{p['sl']}</td>
+  <td class="text-success" style="color:#FFFFFF!important">{p['tp']}</td>
+  <td class="{pc} fw-bold" style="color:#FFFFFF!important">${p['profit']:+,.2f}</td>
+  <td class="text-muted" style="color:#FFFFFF!important">{p['open_time']}</td>
 </tr>"""
         pos_html = f"""
 <div class="card mb-3">
-  <div class="card-header"><i class="bi bi-graph-up-arrow text-warning"></i> Open Positions</div>
+  <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-graph-up-arrow text-warning"></i> Open Positions</div>
   <div class="table-responsive">
     <table class="table table-dark table-sm table-hover mb-0">
       <thead><tr>
-        <th>Ticket</th><th>Symbol</th><th>Type</th><th>Vol</th>
-        <th>Entry</th><th>Current</th><th>SL</th><th>TP</th>
-        <th>P&L</th><th>Time</th>
+        <th style="color:#CCCCCC!important">Ticket</th><th style="color:#CCCCCC!important">Symbol</th><th style="color:#CCCCCC!important">Type</th><th style="color:#CCCCCC!important">Vol</th>
+        <th style="color:#CCCCCC!important">Entry</th><th style="color:#CCCCCC!important">Current</th><th style="color:#CCCCCC!important">SL</th><th style="color:#CCCCCC!important">TP</th>
+        <th style="color:#CCCCCC!important">P&L</th><th style="color:#CCCCCC!important">Time</th>
       </tr></thead>
       <tbody>{rows}</tbody>
     </table>
   </div>
 </div>"""
     else:
-        pos_html = '<div class="alert" style="background:#1f2937;color:#8b949e">No open positions</div>'
+        pos_html = '<div class="alert" style="background:#1E2530;border:1px solid #2d3748;color:#AAAAAA">No open positions</div>'
 
     # CME summary
     cme_html = ""
@@ -377,7 +425,7 @@ def overview():
         net_cls = "profit" if net.startswith("-") is False and net != "—" else "loss"
         cme_html = f"""
 <div class="card mb-3">
-  <div class="card-header"><i class="bi bi-bar-chart-fill text-info"></i> CME Gold — {cme.get('updated','')}</div>
+  <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-bar-chart-fill text-info"></i> CME Gold — {cme.get('updated','')}</div>
   <div class="card-body">
     <div class="row g-3">
       <div class="col-sm-4"><div class="p-3 rounded" style="background:#0d2b1a">
@@ -421,18 +469,18 @@ def overview():
                 bc = "badge-neutral"
                 icon = "⚪"
             brows += f"""<tr>
-  <td><strong>{sym}</strong></td>
-  <td><span class="badge {bc}">{icon} {bias}</span></td>
-  <td>{info.get('wait_for','-')[:60]}</td>
-  <td class="text-danger small">{info.get('entry_zone_btm','-')} – <span class="text-success">{info.get('entry_zone_top','-')}</span></td>
-  <td class="text-muted small">{info.get('note','-')[:60]}</td>
+  <td style="color:#FFFFFF!important"><strong>{sym}</strong></td>
+  <td style="color:#FFFFFF!important"><span class="badge {bc}">{icon} {bias}</span></td>
+  <td style="color:#FFFFFF!important">{info.get('wait_for','-')[:60]}</td>
+  <td class="text-danger small" style="color:#FFFFFF!important">{info.get('entry_zone_btm','-')} – <span class="text-success">{info.get('entry_zone_top','-')}</span></td>
+  <td class="text-muted small" style="color:#FFFFFF!important">{info.get('note','-')[:60]}</td>
 </tr>"""
         brief_html = f"""
 <div class="card mb-3">
-  <div class="card-header"><i class="bi bi-sunrise text-warning"></i> Morning Brief</div>
+  <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-sunrise text-warning"></i> Morning Brief</div>
   <div class="table-responsive">
     <table class="table table-dark table-sm table-hover mb-0">
-      <thead><tr><th>Symbol</th><th>Bias</th><th>Waiting For</th><th>Entry Zone</th><th>Note</th></tr></thead>
+      <thead><tr><th style="color:#CCCCCC!important">Symbol</th><th style="color:#CCCCCC!important">Bias</th><th style="color:#CCCCCC!important">Waiting For</th><th style="color:#CCCCCC!important">Entry Zone</th><th style="color:#CCCCCC!important">Note</th></tr></thead>
       <tbody>{brows}</tbody>
     </table>
   </div>
@@ -473,19 +521,19 @@ def monitor():
             elif "BEAR" in bias: bc, icon = "badge-bearish", "🔴"
             else:                bc, icon = "badge-neutral",  "⚪"
             state_rows += f"""<tr>
-  <td><strong>{sym}</strong></td>
-  <td><span class="badge {bc}">{icon} {bias}</span></td>
-  <td class="text-muted small">{info.get('wait_for','-')[:80]}</td>
-  <td>{info.get('entry_zone_btm','-')} – {info.get('entry_zone_top','-')}</td>
-  <td class="text-danger small">{info.get('sl_level','-')}</td>
-  <td class="text-success small">{info.get('tp_level','-')}</td>
+  <td style="color:#FFFFFF!important"><strong>{sym}</strong></td>
+  <td style="color:#FFFFFF!important"><span class="badge {bc}">{icon} {bias}</span></td>
+  <td class="text-muted small" style="color:#FFFFFF!important">{info.get('wait_for','-')[:80]}</td>
+  <td style="color:#FFFFFF!important">{info.get('entry_zone_btm','-')} – {info.get('entry_zone_top','-')}</td>
+  <td class="text-danger small" style="color:#FFFFFF!important">{info.get('sl_level','-')}</td>
+  <td class="text-success small" style="color:#FFFFFF!important">{info.get('tp_level','-')}</td>
 </tr>"""
         state_html = f"""
 <div class="card mb-3">
-  <div class="card-header"><i class="bi bi-table text-info"></i> Symbol States (from Morning Brief)</div>
+  <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-table text-info"></i> Symbol States (from Morning Brief)</div>
   <div class="table-responsive">
     <table class="table table-dark table-sm table-hover mb-0">
-      <thead><tr><th>Symbol</th><th>Bias</th><th>Waiting For</th><th>Entry Zone</th><th>SL</th><th>TP</th></tr></thead>
+      <thead><tr><th style="color:#CCCCCC!important">Symbol</th><th style="color:#CCCCCC!important">Bias</th><th style="color:#CCCCCC!important">Waiting For</th><th style="color:#CCCCCC!important">Entry Zone</th><th style="color:#CCCCCC!important">SL</th><th style="color:#CCCCCC!important">TP</th></tr></thead>
       <tbody>{state_rows}</tbody>
     </table>
   </div>
@@ -506,7 +554,7 @@ def monitor():
 
     snap_html = f"""
 <div class="card mb-3">
-  <div class="card-header"><i class="bi bi-activity text-warning"></i> CME Live Snapshot — {snap_time}</div>
+  <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-activity text-warning"></i> CME Live Snapshot — {snap_time}</div>
   <div class="card-body">
     <div class="row g-3">
       <div class="col-sm-2"><div class="text-muted small">PC Ratio</div><div class="fs-5 fw-bold {pc_cls}">{pc}</div></div>
@@ -526,7 +574,7 @@ def monitor():
 <div class="row g-3">
   <div class="col-lg-6">
     <div class="card h-100">
-      <div class="card-header"><i class="bi bi-sunrise text-warning"></i> Morning Brief</div>
+      <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-sunrise text-warning"></i> Morning Brief</div>
       <div class="card-body p-0">
         <pre class="m-0 rounded-0" style="border:none">{brief_md}</pre>
       </div>
@@ -534,7 +582,7 @@ def monitor():
   </div>
   <div class="col-lg-6">
     <div class="card h-100">
-      <div class="card-header"><i class="bi bi-newspaper text-info"></i> Hermes Intelligence</div>
+      <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-newspaper text-info"></i> Hermes Intelligence</div>
       <div class="card-body p-0">
         <pre class="m-0 rounded-0" style="border:none">{intelligence}</pre>
       </div>
@@ -562,20 +610,20 @@ def journal():
 <div class="row g-3 mb-3">
   <div class="col-md-3"><div class="card stat-card p-3">
     <div class="text-muted small">Total Trades</div>
-    <div class="stat-val">{len(data['trades'])}</div>
+    <div class="stat-val" style="color:#FFFFFF!important">{len(data['trades'])}</div>
   </div></div>
   <div class="col-md-3"><div class="card stat-card p-3" style="border-left-color:#3fb950">
     <div class="text-muted small">Win Rate</div>
-    <div class="stat-val {wr_cls}">{wr}%</div>
+    <div class="stat-val {wr_cls}" style="color:#FFFFFF!important">{wr}%</div>
     <div class="text-muted small">Target: ≥45%</div>
   </div></div>
   <div class="col-md-3"><div class="card stat-card p-3" style="border-left-color:{'#3fb950' if pnl>=0 else '#f85149'}">
     <div class="text-muted small">Total P&L</div>
-    <div class="stat-val {pnl_cls}">${pnl:+,.2f}</div>
+    <div class="stat-val {pnl_cls}" style="color:#FFFFFF!important">${pnl:+,.2f}</div>
   </div></div>
   <div class="col-md-3"><div class="card stat-card p-3" style="border-left-color:#f0883e">
     <div class="text-muted small">Trading Days</div>
-    <div class="stat-val">{len(data['daily_pnl'])}</div>
+    <div class="stat-val" style="color:#FFFFFF!important">{len(data['daily_pnl'])}</div>
   </div></div>
 </div>"""
 
@@ -585,19 +633,19 @@ def journal():
         wr2 = round(s["wins"]/s["trades"]*100, 1) if s["trades"] else 0
         pc2 = "profit" if s["pnl"] >= 0 else "loss"
         sym_rows += f"""<tr>
-  <td><strong>{sym}</strong></td>
-  <td>{s['trades']}</td>
-  <td>{s['wins']}</td>
-  <td class="{'profit' if wr2>=45 else 'loss'}">{wr2}%</td>
-  <td class="{pc2}">${s['pnl']:+,.2f}</td>
+  <td style="color:#FFFFFF!important"><strong>{sym}</strong></td>
+  <td style="color:#FFFFFF!important">{s['trades']}</td>
+  <td style="color:#FFFFFF!important">{s['wins']}</td>
+  <td class="{'profit' if wr2>=45 else 'loss'}" style="color:#FFFFFF!important">{wr2}%</td>
+  <td class="{pc2}" style="color:#FFFFFF!important">${s['pnl']:+,.2f}</td>
 </tr>"""
 
     sym_html = f"""
 <div class="card mb-3">
-  <div class="card-header"><i class="bi bi-pie-chart text-info"></i> Per-Symbol Breakdown</div>
+  <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-pie-chart text-info"></i> Per-Symbol Breakdown</div>
   <div class="table-responsive">
     <table class="table table-dark table-sm table-hover mb-0">
-      <thead><tr><th>Symbol</th><th>Trades</th><th>Wins</th><th>Win Rate</th><th>P&L</th></tr></thead>
+      <thead><tr><th style="color:#CCCCCC!important">Symbol</th><th style="color:#CCCCCC!important">Trades</th><th style="color:#CCCCCC!important">Wins</th><th style="color:#CCCCCC!important">Win Rate</th><th style="color:#CCCCCC!important">P&L</th></tr></thead>
       <tbody>{sym_rows if sym_rows else '<tr><td colspan="5" class="text-muted text-center">No completed trades yet</td></tr>'}</tbody>
     </table>
   </div>
@@ -608,14 +656,14 @@ def journal():
     for day in sorted(data["daily_pnl"].keys(), reverse=True):
         val = data["daily_pnl"][day]
         dc  = "profit" if val >= 0 else "loss"
-        daily_rows += f"<tr><td>{day}</td><td class='{dc} fw-bold'>${val:+,.2f}</td></tr>"
+        daily_rows += f'<tr><td style="color:#FFFFFF!important">{day}</td><td class="{dc} fw-bold" style="color:#FFFFFF!important">${val:+,.2f}</td></tr>'
 
     daily_html = f"""
 <div class="card mb-3">
-  <div class="card-header"><i class="bi bi-calendar-check text-warning"></i> Daily P&L</div>
+  <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-calendar-check text-warning"></i> Daily P&L</div>
   <div class="table-responsive">
     <table class="table table-dark table-sm mb-0" style="max-width:400px">
-      <thead><tr><th>Date</th><th>P&L</th></tr></thead>
+      <thead><tr><th style="color:#CCCCCC!important">Date</th><th style="color:#CCCCCC!important">P&L</th></tr></thead>
       <tbody>{daily_rows if daily_rows else '<tr><td colspan="2" class="text-muted text-center">No P&L data</td></tr>'}</tbody>
     </table>
   </div>
@@ -631,20 +679,20 @@ def journal():
         else:              aclass = "text-muted"
         score = e.get("score","—")
         entry_rows += f"""<tr>
-  <td class="text-muted">{e.get('date','')} {e.get('time','')}</td>
-  <td><strong>{e.get('symbol','—')}</strong></td>
-  <td class="{aclass}">{ac}</td>
-  <td>{e.get('bias','—')}</td>
-  <td>{score}</td>
-  <td class="text-muted small" style="max-width:300px">{e.get('summary',e.get('reason',''))[:80]}</td>
+  <td class="text-muted" style="color:#FFFFFF!important">{e.get('date','')} {e.get('time','')}</td>
+  <td style="color:#FFFFFF!important"><strong>{e.get('symbol','—')}</strong></td>
+  <td class="{aclass}" style="color:#FFFFFF!important">{ac}</td>
+  <td style="color:#FFFFFF!important">{e.get('bias','—')}</td>
+  <td style="color:#FFFFFF!important">{score}</td>
+  <td class="text-muted small" style="max-width:300px;color:#FFFFFF!important">{e.get('summary',e.get('reason',''))[:80]}</td>
 </tr>"""
 
     entries_html = f"""
 <div class="card">
-  <div class="card-header"><i class="bi bi-journal-text"></i> Recent Journal Entries (last 30)</div>
+  <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-journal-text"></i> Recent Journal Entries (last 30)</div>
   <div class="table-responsive">
     <table class="table table-dark table-sm table-hover mb-0">
-      <thead><tr><th>Time</th><th>Symbol</th><th>Action</th><th>Bias</th><th>Score</th><th>Summary</th></tr></thead>
+      <thead><tr><th style="color:#CCCCCC!important">Time</th><th style="color:#CCCCCC!important">Symbol</th><th style="color:#CCCCCC!important">Action</th><th style="color:#CCCCCC!important">Bias</th><th style="color:#CCCCCC!important">Score</th><th style="color:#CCCCCC!important">Summary</th></tr></thead>
       <tbody>{entry_rows if entry_rows else '<tr><td colspan="6" class="text-muted text-center">No entries</td></tr>'}</tbody>
     </table>
   </div>
@@ -770,7 +818,7 @@ def cme_dashboard():
 
     vol_html = f"""
 <div class="card mb-3">
-  <div class="card-header"><i class="bi bi-bar-chart text-info"></i> Vol2Vol — Options Activity</div>
+  <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-bar-chart text-info"></i> Vol2Vol — Options Activity</div>
   <div class="card-body">
     <div class="row g-3">
       <div class="col-sm-4">
@@ -791,7 +839,7 @@ def cme_dashboard():
 
     raw_html = f"""
 <div class="card">
-  <div class="card-header"><i class="bi bi-file-text text-muted"></i> CME_Daily.md Raw — {cme.get('updated','')}</div>
+  <div class="card-header" style="color:#FFFFFF!important"><i class="bi bi-file-text text-muted"></i> CME_Daily.md Raw — {cme.get('updated','')}</div>
   <div class="card-body p-0">
     <pre class="m-0 rounded-0" style="border:none">{raw}</pre>
   </div>
@@ -810,5 +858,5 @@ def cme_dashboard():
 # ─────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("🌐 Midas Dashboard: http://localhost:5000")
+    print("Midas Dashboard: http://localhost:5000")
     app.run(host="0.0.0.0", port=5000, debug=False)
