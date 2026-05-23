@@ -46,21 +46,26 @@
     }
     #btn:hover  { background: #f5d060; }
     #btn:active { transform: scale(0.97); }
-    #btn:disabled { background: #555; color: #999; cursor: default; }
     #status {
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       color: #555;
       margin-top: 0.8rem;
       min-height: 1.2em;
     }
+    #status.error { color: #e05050; }
+    .spin {
+      display: inline-block;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="logo">MIDAS</div>
     <div class="sub">Trading Dashboard</div>
-    <button id="btn" onclick="openDashboard()">Open Dashboard</button>
-    <div id="status"></div>
+    <button id="btn" onclick="handleClick()">Open Dashboard</button>
+    <div id="status"><span class="spin">⟳</span> Loading…</div>
   </div>
 
   <script>
@@ -68,29 +73,50 @@
     const btn    = document.getElementById('btn');
     const status = document.getElementById('status');
 
-    function openDashboard() {
-      btn.disabled = true;
-      btn.textContent = 'Connecting...';
-      status.textContent = '';
+    // null = still fetching | '' = fetch failed | 'http...' = ready
+    let dashUrl = null;
+    let pending = false;  // user tapped before URL was ready
 
+    function setStatus(html, isError) {
+      status.className = isError ? 'error' : '';
+      status.innerHTML = html;
+    }
+
+    function fetchUrl() {
+      dashUrl = null;
       fetch(GIST_URL + '?t=' + Date.now())
         .then(r => r.text())
-        .then(url => {
-          const target = url.trim();
-          if (target) {
-            window.location.href = target;
-          } else {
-            status.textContent = 'URL not found in Gist.';
-            btn.disabled = false;
-            btn.textContent = 'Open Dashboard';
-          }
+        .then(txt => {
+          const url = txt.trim();
+          if (!url) throw new Error('empty');
+          dashUrl = url;
+          setStatus('', false);
+          if (pending) { pending = false; window.location.href = dashUrl; }
         })
         .catch(() => {
-          status.textContent = 'Failed to fetch URL. Try again.';
-          btn.disabled = false;
-          btn.textContent = 'Open Dashboard';
+          dashUrl = '';
+          setStatus('⚠ Could not load URL. Tap to retry.', true);
+          pending = false;
         });
     }
+
+    function handleClick() {
+      if (dashUrl) {
+        // URL ready — open immediately
+        window.location.href = dashUrl;
+      } else if (dashUrl === '') {
+        // Previous fetch failed — retry then open
+        pending = true;
+        fetchUrl();
+        setStatus('<span class="spin">⟳</span> Retrying…', false);
+      } else {
+        // Still fetching — mark pending, open as soon as it arrives
+        pending = true;
+        setStatus('<span class="spin">⟳</span> Almost there…', false);
+      }
+    }
+
+    fetchUrl();
   </script>
 </body>
 </html>
