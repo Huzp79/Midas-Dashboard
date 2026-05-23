@@ -34,7 +34,6 @@
       margin-bottom: 2rem;
     }
     #btn {
-      display: none;
       padding: 0.75rem 2rem;
       font-size: 1rem;
       font-weight: 600;
@@ -47,9 +46,11 @@
     }
     #btn:hover  { background: #f5d060; }
     #btn:active { transform: scale(0.97); }
+    #btn:disabled { background: #555; color: #999; cursor: default; }
     #status {
       font-size: 0.85rem;
       color: #555;
+      margin-top: 0.8rem;
       min-height: 1.2em;
     }
   </style>
@@ -59,33 +60,37 @@
     <div class="logo">MIDAS</div>
     <div class="sub">Trading Dashboard</div>
     <button id="btn" onclick="openDashboard()">Open Dashboard</button>
-    <div id="status">Loading URL...</div>
+    <div id="status"></div>
   </div>
 
   <script>
     const GIST_URL = 'https://gist.githubusercontent.com/Huzp79/44776511f85fbbd6e9ab314c7db09135/raw/midas_url.txt';
     const btn    = document.getElementById('btn');
     const status = document.getElementById('status');
-    let dashboardUrl = '';
 
     function openDashboard() {
-      if (dashboardUrl) window.location.href = dashboardUrl;
-    }
+      btn.disabled = true;
+      btn.textContent = 'Connecting...';
+      status.textContent = '';
 
-    fetch(GIST_URL + '?t=' + Date.now())
-      .then(r => r.text())
-      .then(url => {
-        dashboardUrl = url.trim();
-        if (dashboardUrl) {
-          status.textContent = '';
-          btn.style.display = 'inline-block';
-        } else {
-          status.textContent = 'URL not found in Gist.';
-        }
-      })
-      .catch(() => {
-        status.textContent = 'Failed to fetch URL.';
-      });
+      fetch(GIST_URL + '?t=' + Date.now())
+        .then(r => r.text())
+        .then(url => {
+          const target = url.trim();
+          if (target) {
+            window.location.href = target;
+          } else {
+            status.textContent = 'URL not found in Gist.';
+            btn.disabled = false;
+            btn.textContent = 'Open Dashboard';
+          }
+        })
+        .catch(() => {
+          status.textContent = 'Failed to fetch URL. Try again.';
+          btn.disabled = false;
+          btn.textContent = 'Open Dashboard';
+        });
+    }
   </script>
 </body>
 </html>
