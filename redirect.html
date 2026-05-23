@@ -75,7 +75,6 @@
 
     // null = still fetching | '' = fetch failed | 'http...' = ready
     let dashUrl = null;
-    let pending = false;  // user tapped before URL was ready
 
     function setStatus(html, isError) {
       status.className = isError ? 'error' : '';
@@ -91,12 +90,10 @@
           if (!url) throw new Error('empty');
           dashUrl = url;
           setStatus('', false);
-          if (pending) { pending = false; window.location.href = dashUrl; }
         })
         .catch(() => {
           dashUrl = '';
           setStatus('⚠ Could not load URL. Tap to retry.', true);
-          pending = false;
         });
     }
 
@@ -105,14 +102,12 @@
         // URL ready — open immediately
         window.location.href = dashUrl;
       } else if (dashUrl === '') {
-        // Previous fetch failed — retry then open
-        pending = true;
+        // Previous fetch failed — retry
         fetchUrl();
         setStatus('<span class="spin">⟳</span> Retrying…', false);
       } else {
-        // Still fetching — mark pending, open as soon as it arrives
-        pending = true;
-        setStatus('<span class="spin">⟳</span> Almost there…', false);
+        // Still fetching — wait
+        setStatus('<span class="spin">⟳</span> Still loading…', false);
       }
     }
 
