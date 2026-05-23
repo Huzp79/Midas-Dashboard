@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - USDCAD
-**Updated:** 2026-05-23 18:19:44
+**Updated:** 2026-05-23 19:51:09
 
 ## ⏳ H4
 - **[SMC]:** Price=1.3807 | Swing=BULLISH | Internal=BULLISH

@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - GOLD
-**Updated:** 2026-05-23 18:19:44
+**Updated:** 2026-05-23 19:51:08
 
 ## ⏳ H4
 - **[SMC]:** Price=4514.88 | Swing=BEARISH | Internal=BEARISH
