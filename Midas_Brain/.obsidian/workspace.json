@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "MIDAS_REQUIREMENTS.md",
+                "file": "00_Midas_Constitution.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "MIDAS_REQUIREMENTS"
+              "title": "00_Midas_Constitution"
             }
           }
         ]
@@ -182,32 +182,34 @@
   },
   "active": "9ca7c703f6b9213d",
   "lastOpenFiles": [
-    "MIDAS_REQUIREMENTS.md.tmp.8052.c2a88d32ca8e",
-    "MIDAS_REQUIREMENTS.md.tmp.8052.67e1296f66a6",
-    "MIDAS_REQUIREMENTS.md.tmp.8052.fcf14032951d",
-    "MIDAS_REQUIREMENTS.md.tmp.8052.d354bab5c57f",
+    "MIDAS_REQUIREMENTS.md.tmp.26476.78c15c6c734d",
+    "MIDAS_REQUIREMENTS.md.tmp.26476.3954c4457138",
+    "MIDAS_REQUIREMENTS.md.tmp.26476.e701df79d993",
+    "00_Midas_Constitution.md.tmp.26476.ebce2723b576",
+    "MIDAS_REQUIREMENTS.md.tmp.26476.6dc41aad5bee",
+    "MIDAS_REQUIREMENTS.md.tmp.26476.f8c10b751746",
+    "MIDAS_REQUIREMENTS.md.tmp.26476.93d30ea0c9b8",
+    "MIDAS_REQUIREMENTS.md.tmp.26476.dae25a79bcf4",
+    "MIDAS_REQUIREMENTS.md.tmp.26476.4a078ec3703c",
+    "MIDAS_REQUIREMENTS.md.tmp.26476.60602620eb77",
+    "MIDAS_REQUIREMENTS.md.tmp.26476.2c5ea6977fe4",
+    "MIDAS_REQUIREMENTS.md",
     "00_Midas_Constitution.md",
+    "MIDAS_PROMPT_BLUEPRINT.md",
+    "data/market/CME_Options_Knowledge.md",
+    "wiki/knowledge/SMC_Concepts.md",
+    "wiki/knowledge/Knowledge_Index.md",
+    "Untitled.canvas",
+    "wiki/knowledge/Macro_Framework.md",
+    "wiki/knowledge/Market_Psychology.md",
     "00_Dashboard.md",
-    "wiki/knowledge/CME_Options_Knowledge.md",
     "data/market/Market_Data_Index.md",
     "data/market/morning_brief.md",
     "data/market/daily_intelligence.md",
     "data/journal/Journal_Index.md",
-    "MIDAS_REQUIREMENTS.md",
-    "MIDAS_REQUIREMENTS.md.tmp.12708.1217c46c9b2a",
-    "MIDAS_REQUIREMENTS.md.tmp.12708.e8da3f2f432b",
-    "MIDAS_REQUIREMENTS.md.tmp.12708.a17d2c2c6598",
-    "MIDAS_REQUIREMENTS.md.tmp.12708.bafe40581698",
     "data/market/CME_Daily.md",
-    "MIDAS_REQUIREMENTS.md.tmp.12708.9aacd51c60bd",
-    "MIDAS_REQUIREMENTS.md.tmp.12708.9f019b011ca0",
-    "MIDAS_REQUIREMENTS.md.tmp.12708.f6c5bb745ef0",
     "data/journal/2026-05-22.md",
     "data/journal/2026-05-21.md",
-    "wiki/knowledge/Knowledge_Index.md",
-    "wiki/knowledge/Macro_Framework.md",
-    "wiki/knowledge/SMC_Concepts.md",
-    "wiki/knowledge/Market_Psychology.md",
     "data/journal/2026-05-15.md",
     "data/journal/2026-05-14.md",
     "data/market/latest_data_ETHUSD.md",
@@ -217,8 +219,6 @@
     "data/market/latest_data_GBPUSD.md",
     "wiki/lessons/Lessons_Index.md",
     "wiki/strategies/Strategies_Index.md",
-    "wiki/strategies/AMD_Pattern.md",
-    "Untitled 1.canvas",
-    "Untitled.canvas"
+    "Untitled 1.canvas"
   ]
 }
