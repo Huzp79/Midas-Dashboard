@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - GBPJPY
-**Updated:** 2026-05-23 19:51:08
+**Updated:** 2026-05-23 20:03:10
 
 ## ⏳ H4
 - **[SMC]:** Price=213.966 | Swing=BULLISH | Internal=BULLISH

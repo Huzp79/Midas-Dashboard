@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - EURUSD
-**Updated:** 2026-05-23 19:51:08
+**Updated:** 2026-05-23 20:03:10
 
 ## ⏳ H4
 - **[SMC]:** Price=1.16102 | Swing=BEARISH | Internal=BEARISH

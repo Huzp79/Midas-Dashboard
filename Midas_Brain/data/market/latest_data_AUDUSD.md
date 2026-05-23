@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - AUDUSD
-**Updated:** 2026-05-23 19:51:09
+**Updated:** 2026-05-23 20:03:10
 
 ## ⏳ H4
 - **[SMC]:** Price=0.71341 | Swing=BEARISH | Internal=BEARISH
