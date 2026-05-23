@@ -97,6 +97,48 @@ def close_mt5_position(ticket, symbol, volume, pos_type):
     print(f"✅ [Close]: ปิดไม้ #{ticket} {symbol} สำเร็จ")
     return True
 
+def close_position_by_ticket(ticket):
+    """ปิดไม้ตาม Ticket เพียงอย่างเดียว — ค้นหา Symbol/Volume/Type จาก MT5 เอง
+    Return (True, close_price) หรือ (False, None)"""
+    if not mt5.initialize():
+        print(f"❌ [/close]: MT5 ไม่ตอบสนอง")
+        return False, None
+    positions = mt5.positions_get(ticket=ticket)
+    if not positions:
+        mt5.shutdown()
+        print(f"❌ [/close]: ไม่พบ Position #{ticket}")
+        return False, None
+    pos  = positions[0]
+    tick = mt5.symbol_info_tick(pos.symbol)
+    if not tick:
+        mt5.shutdown()
+        print(f"❌ [/close]: ดึงราคา {pos.symbol} ไม่ได้")
+        return False, None
+    close_price = tick.bid if pos.type == 0 else tick.ask
+    close_type  = mt5.ORDER_TYPE_SELL if pos.type == 0 else mt5.ORDER_TYPE_BUY
+    request = {
+        "action":       mt5.TRADE_ACTION_DEAL,
+        "symbol":       pos.symbol,
+        "volume":       float(pos.volume),
+        "type":         close_type,
+        "position":     ticket,
+        "price":        close_price,
+        "deviation":    20,
+        "magic":        777777,
+        "comment":      "Midas /close command",
+        "type_time":    mt5.ORDER_TIME_GTC,
+        "type_filling": mt5.ORDER_FILLING_IOC,
+    }
+    result = mt5.order_send(request)
+    mt5.shutdown()
+    if result is None or result.retcode != mt5.TRADE_RETCODE_DONE:
+        comment = result.comment if result else "ไม่มีการตอบสนอง"
+        print(f"❌ [/close]: ปิดไม้ #{ticket} ไม่สำเร็จ — {comment}")
+        return False, None
+    print(f"✅ [/close]: ปิดไม้ #{ticket} {pos.symbol} @ {close_price}")
+    return True, close_price
+
+
 def place_pending_order(symbol, action, entry, sl, tp, lot):
     """วาง Limit Order (BUY_LIMIT หรือ SELL_LIMIT) — Return ticket หรือ None"""
     if not mt5.initialize():

@@ -1,7 +1,9 @@
 import time
 import os
 import json
+import re
 import threading
+import requests
 from datetime import datetime, timezone, timedelta, time as datetime_time
 
 import feed_midas
@@ -14,6 +16,8 @@ print("🚀 [Midas Core]: กำลังบูตระบบ (SMC State Machin
 
 SYMBOLS        = ["GOLD", "BTCUSD", "EURUSD", "GBPJPY", "GBPUSD", "AUDUSD", "USDCAD", "USDCHF", "ETHUSD"]
 CRYPTO_SYMBOLS = ["BTCUSD", "ETHUSD"]
+
+IS_PAUSED = False  # /pause → True | /resume → False
 
 # ==========================================
 # 🛠️ Helper: อ่าน JSON จาก MT5
@@ -375,6 +379,161 @@ def _hermes_background():
         time.sleep(30)
 
 # ==========================================
+# 📡 Telegram Two-Way Polling Thread
+# ==========================================
+def _telegram_polling():
+    """Background thread: รับคำสั่งจาก Telegram ทุก 3 วินาที"""
+    global IS_PAUSED
+
+    token   = os.getenv("TELEGRAM_TOKEN")
+    chat_id = os.getenv("CHAT_ID")
+
+    if not token or not chat_id:
+        print("⚠️ [TG Poll]: ไม่มี TELEGRAM_TOKEN หรือ CHAT_ID — ปิด Polling")
+        return
+
+    def reply(text):
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{token}/sendMessage",
+                data={"chat_id": chat_id, "text": text},
+                timeout=5,
+            )
+        except Exception as e:
+            print(f"⚠️ [TG Poll Reply]: {e}")
+
+    # ดึง offset ปัจจุบันก่อนเพื่อข้ามข้อความเก่าทั้งหมด
+    offset = None
+    try:
+        resp    = requests.get(f"https://api.telegram.org/bot{token}/getUpdates",
+                               params={"timeout": 0, "limit": 100}, timeout=10)
+        updates = resp.json().get("result", [])
+        if updates:
+            offset = updates[-1]["update_id"] + 1
+    except Exception:
+        pass
+
+    print("📡 [TG Poll]: Telegram Two-Way ONLINE")
+
+    while True:
+        try:
+            params = {"timeout": 0, "limit": 10}
+            if offset is not None:
+                params["offset"] = offset
+            resp    = requests.get(f"https://api.telegram.org/bot{token}/getUpdates",
+                                   params=params, timeout=5)
+            updates = resp.json().get("result", [])
+
+            for upd in updates:
+                offset = upd["update_id"] + 1
+                msg    = upd.get("message") or upd.get("channel_post") or {}
+                text   = (msg.get("text") or "").strip()
+                if not text.startswith("/"):
+                    continue
+
+                parts   = text.split()
+                command = parts[0].lower()
+                print(f"📡 [TG Poll]: คำสั่ง '{text}'")
+
+                # /help
+                if command == "/help":
+                    reply(
+                        "🤖 Midas Commands:\n\n"
+                        "/status — Open Positions ทั้งหมด\n"
+                        "/pause  — หยุดสแกนหาไม้ใหม่\n"
+                        "/resume — เปิดสแกนต่อ\n"
+                        "/close [ticket] — ปิดไม้ตาม Ticket\n"
+                        "/report — สรุป P&L วันนี้\n"
+                        "/help   — แสดงคำสั่งทั้งหมด"
+                    )
+
+                # /status
+                elif command == "/status":
+                    try:
+                        import MetaTrader5 as mt5
+                        if not mt5.initialize():
+                            reply("❌ เชื่อมต่อ MT5 ไม่ได้")
+                        else:
+                            positions = mt5.positions_get()
+                            mt5.shutdown()
+                            if not positions:
+                                paused_txt = " [PAUSED]" if IS_PAUSED else ""
+                                reply(f"📭 ไม่มีไม้เปิดอยู่{paused_txt}")
+                            else:
+                                paused_txt = " [PAUSED]" if IS_PAUSED else ""
+                                lines = [f"📊 Open Positions{paused_txt} ({len(positions)} ไม้):"]
+                                for p in positions:
+                                    direction = "BUY" if p.type == 0 else "SELL"
+                                    icon      = "🟢" if p.profit >= 0 else "🔴"
+                                    lines.append(
+                                        f"{icon} #{p.ticket} {p.symbol} {direction}\n"
+                                        f"   Entry={p.price_open} | SL={p.sl} | TP={p.tp}\n"
+                                        f"   P&L={p.profit:+.2f} USD"
+                                    )
+                                reply("\n\n".join(lines))
+                    except Exception as e:
+                        reply(f"❌ /status error: {e}")
+
+                # /pause
+                elif command == "/pause":
+                    IS_PAUSED = True
+                    reply("⏸️ Midas PAUSED\nหยุดสแกนหาไม้ใหม่แล้ว\nไม้ที่เปิดอยู่จะยัง Monitor ต่อ\nพิมพ์ /resume เพื่อเปิดต่อ")
+                    print("⏸️ [TG Poll]: ระบบ PAUSED")
+
+                # /resume
+                elif command == "/resume":
+                    IS_PAUSED = False
+                    reply("▶️ Midas RESUMED\nกลับมาสแกนหาไม้แล้ว")
+                    print("▶️ [TG Poll]: ระบบ RESUMED")
+
+                # /close [ticket]
+                elif command == "/close":
+                    if len(parts) < 2:
+                        reply("❓ ใช้: /close [ticket]\nเช่น: /close 12345678")
+                    else:
+                        try:
+                            ticket = int(parts[1])
+                            ok, close_price = auto_trade.close_position_by_ticket(ticket)
+                            if ok:
+                                reply(f"✅ ปิดไม้ #{ticket} สำเร็จ @ {close_price}")
+                            else:
+                                reply(f"❌ ปิดไม้ #{ticket} ไม่สำเร็จ\nไม่พบ Position หรือ MT5 Error")
+                        except ValueError:
+                            reply("❓ Ticket ต้องเป็นตัวเลข เช่น: /close 12345678")
+
+                # /report
+                elif command == "/report":
+                    today_str = datetime.now().strftime("%Y-%m-%d")
+                    j_path    = os.path.join("Midas_Brain", "data", "journal", f"{today_str}.md")
+                    if not os.path.exists(j_path):
+                        reply(f"📭 ยังไม่มี Journal วันนี้ ({today_str})")
+                    else:
+                        try:
+                            with open(j_path, "r", encoding="utf-8-sig") as f:
+                                content = f.read()
+                            wins   = content.count("Result: WIN")   + content.count("**Result:** WIN")
+                            losses = content.count("Result: LOSS")  + content.count("**Result:** LOSS")
+                            bes    = content.count("Result: BE")    + content.count("**Result:** BE")
+                            pnls   = re.findall(r"\*\*P&L:\*\* ([+-]?\d+\.?\d*) USD", content)
+                            total  = sum(float(x) for x in pnls) if pnls else 0.0
+                            reply(
+                                f"📈 Daily Report — {today_str}\n\n"
+                                f"✅ WIN: {wins} | ❌ LOSS: {losses} | 🛡️ BE: {bes}\n"
+                                f"💰 Total P&L: {total:+.2f} USD"
+                            )
+                        except Exception as e:
+                            reply(f"❌ /report error: {e}")
+
+                else:
+                    reply(f"❓ ไม่รู้จักคำสั่ง '{command}'\nพิมพ์ /help เพื่อดูคำสั่งทั้งหมด")
+
+        except Exception as e:
+            print(f"⚠️ [TG Poll]: {e}")
+
+        time.sleep(3)
+
+
+# ==========================================
 # 🔄 Main Loop — State Machine
 # ==========================================
 def main_loop():
@@ -387,6 +546,10 @@ def main_loop():
     hermes_thread = threading.Thread(target=_hermes_background, daemon=True, name="HermesThread")
     hermes_thread.start()
     print("🪽 [Hermes Thread]: ONLINE\n")
+
+    # เริ่ม Telegram Two-Way Polling
+    tg_thread = threading.Thread(target=_telegram_polling, daemon=True, name="TelegramPollThread")
+    tg_thread.start()
 
     # State แยกต่อ Symbol
     states = {
@@ -450,6 +613,11 @@ def main_loop():
                 continue
 
             feed_midas.run_feeder(symbol)
+
+            # ข้ามสแกนถ้า PAUSED — ยกเว้น MONITORING (ยังดูแลไม้เปิดอยู่)
+            if IS_PAUSED and st["bot_state"] != "MONITORING":
+                print(f"[{now_str}] [{symbol}] ⏸️ PAUSED — ข้ามสแกน")
+                continue
 
             # ─────────────────────────────────────
             # STATE 1: SCANNING
