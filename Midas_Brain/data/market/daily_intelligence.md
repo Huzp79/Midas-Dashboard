@@ -1,5 +1,5 @@
 # 🕵️‍♂️ HERMES DAILY INTELLIGENCE REPORT
-**Date:** 2026-05-23 | **Last Updated:** 21:46:48
+**Date:** 2026-05-24 | **Last Updated:** 03:56:10
 ---
 
 ## 🌍 1. GLOBAL MARKET CONTEXT

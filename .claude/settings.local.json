@@ -11,7 +11,9 @@
       "Bash(python -c \"import dashboard; print\\('OK - no import errors'\\)\")",
       "Bash(python -c \"import dashboard; print\\('OK'\\)\")",
       "Bash(python cme_scraper.py btc)",
-      "Bash(python cme_scraper.py btc_oi)"
+      "Bash(python cme_scraper.py btc_oi)",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('main.py', encoding='utf-8'\\).read\\(\\)\\); print\\('main.py OK'\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('auto_trade.py', encoding='utf-8'\\).read\\(\\)\\); print\\('auto_trade.py OK'\\)\")"
     ]
   }
 }
