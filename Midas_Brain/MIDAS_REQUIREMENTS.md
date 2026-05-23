@@ -443,7 +443,7 @@ Midas_Brain/
 
 ---
 
-## 16. CURRENT STATUS (ณ 23 พฤษภาคม 2026 — v3.4)
+## 16. CURRENT STATUS (ณ 24 พฤษภาคม 2026 — v3.5)
 
 ```
 ✅ ระบบรันได้แล้ว Multi-Symbol Auto-Trading (Demo Account)
@@ -525,6 +525,15 @@ Midas_Brain/
 ✅ ngrok Auto URL ส่ง Telegram อัตโนมัติ
 ✅ GitHub Pages Redirect (redirect.html)
 ✅ start_midas.bat รัน ngrok + dashboard + notify
+✅ Constitution v2.0 — Sync กับ Requirements ครบทุกจุด
+✅ Strategy GOLD+BTC: CME Wall + SMC Precision (ไม่มี Score)
+✅ Strategy Secondary+ETH: SMC Pure + Score ≥ 7
+✅ Entry Flexible — OB Retest / FVG Fill / MSS Break / Squeeze Fire ตามดุลยพินิจ
+✅ Risk Tiered ตามพอร์ต (Max 50% → 1%) + Max Open Trades (1 → 4 ไม้)
+✅ Night Protocol — Dynamic Monitor + Midas ตัดสินใจเองถ้าไม่ตอบใน 15 นาที
+✅ MACD H1 Divergence + Signal Crossover (Secondary Score +1 / GOLD+BTC เสริมความมั่นใจ)
+✅ brain.py อัปเดต System Prompt ทุกฟังก์ชันตาม Strategy ใหม่
+✅ CME Integration ชัดเจน — เฉพาะ GOLD+BTC, ปรับแผนทันทีถ้า Wall เปลี่ยน
 ```
 
 ---
@@ -532,28 +541,24 @@ Midas_Brain/
 ## 17. NEXT STEPS (เรียงตาม Priority)
 
 ```
-🔴 P1: Mobile Access — ngrok เพื่อเข้า Dashboard จากนอกบ้าน
-   ปัจจุบัน: เข้าได้เฉพาะ WiFi เดียวกัน
-   ต้องการ: เข้าจากมือถือทุกที่ผ่าน ngrok tunnel
-
-🔴 P2: BTC CME Data — เพิ่ม BTCUSD ใน cme_scraper.py
-   ปัจจุบัน: CME Scraper ดึงข้อมูล GOLD เท่านั้น
-   ต้องการ: ดึง Put Wall/Call Wall/Max Pain ของ BTC Futures ด้วย
-
-🔴 P3: Telegram Two-Way — รับคำสั่งจาก Telegram
+🔴 P1: Telegram Two-Way — รับคำสั่งจาก Telegram
    ปัจจุบัน: Telegram ส่งได้ทางเดียว (แจ้งเตือน)
    ต้องการ: รับคำสั่งจาก Telegram เช่น /status /pause /close_all
 
-🟡 P4: Vol2Vol Schedule — หยุดดูหลัง 00:00 BKK
-   CME ปิดตอนกลางคืน Vol2Vol หลังเที่ยงคืนไม่มีความหมาย
-   ต้องการ: Skip Vol2Vol fetch หลัง 00:00 และก่อน 06:00 BKK
+🔴 P2: GitHub Pages Redirect — แสดงปุ่มก่อน Redirect
+   ปัจจุบัน: redirect.html auto-redirect ทันที
+   ต้องการ: แสดงปุ่มเปิดลิงก์ก่อน ไม่ auto-redirect
 
-🟡 P5: Librarian — รอ Journal สะสม 1 สัปดาห์
+🟡 P3: Night Protocol Code — main.py ปิดระบบตอน 00:00 ถ้าไม่มีไม้
+   ปัจจุบัน: Night Watch ตรวจสอบแต่ยังไม่ปิดระบบอัตโนมัติ
+   ต้องการ: ถ้าไม่มีไม้เปิดอยู่หลัง 00:00 → shutdown + รอ 07:00
+
+🟡 P4: Librarian — รอ Journal สะสม 1 สัปดาห์
    ต้องมี Trade Journal ≥ 1 สัปดาห์ก่อน Report จะมีความหมาย
    เพิ่ม field ผล Win/Loss ใน Journal เพื่อคำนวณ Win Rate จริงได้
 
-🟢 P6: Live Trade เมื่อผ่านเกณฑ์ทั้งหมด
-   ดูเกณฑ์ใน Section 18
+🟢 P5: Live Trade เมื่อผ่านเกณฑ์ทั้งหมด
+   Win Rate ≥ 45% จาก 20 ไม้จริง (ดูเกณฑ์ใน Section 18)
 ```
 
 ---
