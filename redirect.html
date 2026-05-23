@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Midas</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #0d0d0d;
+      font-family: 'Segoe UI', sans-serif;
+      color: #f0c040;
+    }
+    .card {
+      text-align: center;
+      padding: 2.5rem 3rem;
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      background: #141414;
+    }
+    .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.4rem;
+    }
+    .sub {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 2rem;
+    }
+    #btn {
+      display: none;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0d0d0d;
+      background: #f0c040;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    #btn:hover  { background: #f5d060; }
+    #btn:active { transform: scale(0.97); }
+    #status {
+      font-size: 0.85rem;
+      color: #555;
+      min-height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">MIDAS</div>
+    <div class="sub">Trading Dashboard</div>
+    <button id="btn" onclick="openDashboard()">Open Dashboard</button>
+    <div id="status">Loading URL...</div>
+  </div>
+
+  <script>
+    const GIST_URL = 'https://gist.githubusercontent.com/Huzp79/44776511f85fbbd6e9ab314c7db09135/raw/midas_url.txt';
+    const btn    = document.getElementById('btn');
+    const status = document.getElementById('status');
+    let dashboardUrl = '';
+
+    function openDashboard() {
+      if (dashboardUrl) window.location.href = dashboardUrl;
+    }
+
+    fetch(GIST_URL + '?t=' + Date.now())
+      .then(r => r.text())
+      .then(url => {
+        dashboardUrl = url.trim();
+        if (dashboardUrl) {
+          status.textContent = '';
+          btn.style.display = 'inline-block';
+        } else {
+          status.textContent = 'URL not found in Gist.';
+        }
+      })
+      .catch(() => {
+        status.textContent = 'Failed to fetch URL.';
+      });
+  </script>
+</body>
+</html>
