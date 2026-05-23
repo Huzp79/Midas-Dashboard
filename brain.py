@@ -332,7 +332,7 @@ def morning_brief(symbols):
 
     cme_raw = read_file(CME_DAILY_PATH)
     cme_section = (
-        "\n[CME GOLD OPTIONS INTELLIGENCE (ใช้กับ GOLD เท่านั้น)]:\n"
+        "\n[CME OPTIONS INTELLIGENCE (GOLD + BTC เท่านั้น)]:\n"
         + cme_raw
         + "\nวิธีใช้ CME Data ใน Entry Planning:\n"
         + "- Put Wall (Spot adj) = Strike ที่ Put OI สูงสุด → แรงรับ Institutional"
@@ -353,8 +353,13 @@ def morning_brief(symbols):
         for s in symbols
     )
 
-    system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC.
+    system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC and CME Options Data.
 Give a concise briefing for each symbol based on current market structure and news.
+
+STRATEGY RULES (apply per symbol):
+- GOLD / BTCUSD (Primary): CME Wall + SMC Precision — ไม่มี Score ใช้ดุลยพินิจ + CME Data
+- Secondary / ETHUSD: SMC Pure + Score ≥ 7 เท่านั้น — ไม่ใช้ CME
+- Entry Method: ยืดหยุ่น — OB Retest, FVG Fill, MSS Break, Squeeze Fire หรือผสมกัน ตาม Context
 CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
 
     sections_str = "\n\n".join(sections)
@@ -366,8 +371,10 @@ For each symbol assess bias and identify key levels from actual OB/FVG/Swing Hig
 Rules:
 - entry_zone_top / entry_zone_btm: the OB or FVG zone to watch for entry (aligned with bias)
 - sl_level: beyond the swept liquidity or outside the OB (invalidation point)
-- tp_level: next significant LQ pool or structural target in the bias direction
+- tp_level: GOLD/BTC → CME Wall ในทิศ Bias | Secondary/ETH → Structure Target ถัดไป
 - invalidate_if_above: price level that would break the bearish thesis (or below for bullish)
+- GOLD + BTC: ใช้ CME Wall เป็น Key Level — entry zone ควรอยู่ใกล้ Put Wall หรือ Call Wall
+- Secondary + ETH: ใช้ SMC Structure เท่านั้น ไม่ใช้ CME
 - Do NOT invent levels — use only values visible in the market data above
 
 Output ONLY this JSON (fill numeric values, remove placeholder text):
@@ -453,7 +460,14 @@ def request_watch_checklist(symbol):
     if not constitution or not market_data:
         return None
 
-    system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC.
+    is_primary = symbol in ("GOLD", "BTCUSD")
+    strategy_context = (
+        "STRATEGY: GOLD/BTC — ตรวจสอบด้วยว่าราคาอยู่ใกล้ CME Put Wall หรือ Call Wall ไหม ถ้าไม่ใกล้ Wall → ระมัดระวังมากขึ้น"
+        if is_primary else
+        "STRATEGY: Secondary/ETH — ใช้ SMC Structure เท่านั้น ไม่ต้องเช็ค CME"
+    )
+
+    system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC and CME Options Data.
 Price has entered the watch zone from the Morning Brief. Analyze market structure and return a watch checklist.
 CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
 
@@ -462,6 +476,7 @@ CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra
 
 Price has entered the Entry Zone identified in the Morning Brief.
 Analyze current H4/H1 structure and decide what trigger conditions must be met before executing.
+{strategy_context}
 
 Output ONLY this JSON:
 {{
@@ -507,20 +522,28 @@ def request_pre_entry(symbol):
     if not constitution or not market_data:
         return None
 
-    system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC.
+    is_primary = symbol in ("GOLD", "BTCUSD")
+    cme_note = (
+        "GOLD/BTC Rule: Entry ต้องอยู่ใกล้ CME Wall (Put Wall หรือ Call Wall) — ถ้าราคาอยู่ห่าง Wall มาก → WAIT"
+        if is_primary else
+        "Secondary/ETH Rule: Entry ตาม SMC Structure เท่านั้น — OB Retest, FVG Fill, หรือ MSS Break"
+    )
+
+    system_prompt = """You are MIDAS, an elite AI trading agent specializing in SMC and CME Options Data.
 Squeeze momentum is building (state=ON) and price is inside the Entry Zone.
-Decide whether to place a Pending Limit Order at the OB level now.
+Decide the best entry method — not fixed to OB only. Entry is flexible based on market context.
 CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
 
     user_prompt = f"""[MARKET DATA]:
 {market_data}
 
 CONTEXT: Squeeze state=ON (momentum building). Price is currently inside the Entry Zone.
+{cme_note}
 
-Decide:
-- PENDING = Place BUY_LIMIT or SELL_LIMIT at the OB level (price will retest before breakout)
-- MARKET = Enter now (momentum is already strong enough to go straight in)
-- WAIT = Conditions not favorable, do nothing
+Entry Methods ที่ใช้ได้ (เลือกตาม Context):
+- PENDING = วาง BUY_LIMIT / SELL_LIMIT (ราคาจะ Retest ก่อน)
+- MARKET = เข้าทันที (momentum แรงพอแล้ว — MSS Break หรือ Squeeze Fire)
+- WAIT = เงื่อนไขยังไม่เหมาะสม
 
 Output ONLY this JSON:
 {{
@@ -587,6 +610,13 @@ def request_execute(symbol, watch_checklist):
 All trigger conditions have been confirmed by Python. Do a final sanity check and execute.
 CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
 
+    is_primary = symbol in ("GOLD", "BTCUSD")
+    tp_note = (
+        "TP: GOLD = ทุก $25 คือ 1 Block | BTC = ทุก $1,000 คือ 1 Block — TP Base 1 Block, Trail SL ครึ่ง Block ทุกครั้งที่ผ่าน 1 Block"
+        if is_primary else
+        "TP: Structure Target ถัดไป (Swing High/Low หรือ OB ถัดไป) — เข้าเมื่อ Score ≥ 7 เท่านั้น"
+    )
+
     user_prompt = f"""[MARKET DATA]:
 {market_data}
 
@@ -595,6 +625,7 @@ CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra
 
 Python confirmed all triggers. Final check: is structure still valid?
 If YES → BUY or SELL. If something changed → WAIT with reason.
+{tp_note}
 
 Output ONLY this JSON (ห้ามใส่ entry, sl, tp — Python คำนวณเอง):
 {{
@@ -794,8 +825,9 @@ def analyze_cme_change(alerts):
     alert_str    = "\n".join(f"- {a['message']}" for a in alerts)
     pos_str      = json.dumps(open_positions, ensure_ascii=False, indent=2) if open_positions else "ไม่มี Position เปิดอยู่"
 
-    system_prompt = """You are MIDAS, monitoring significant CME Gold options changes.
+    system_prompt = """You are MIDAS, monitoring significant CME Gold/BTC options changes (ใช้กับ GOLD และ BTCUSD เท่านั้น).
 A sudden shift in options positioning may signal institutional intent change.
+ถ้า CME Wall เปลี่ยน (Put Wall หรือ Call Wall ย้ายระดับ) → ต้องปรับแผนทันที อย่ารอ
 CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra text."""
 
     user_prompt = f"""[CME ALERTS — SIGNIFICANT CHANGES]:
@@ -807,10 +839,11 @@ CRITICAL: Output ONLY a valid JSON object. No markdown, no explanation, no extra
 [OPEN POSITIONS]:
 {pos_str}
 
-Analyze:
+Analyze (GOLD + BTC เท่านั้น):
 1. Is this a significant institutional signal?
-2. If positions are open — should owner HOLD or REVIEW?
-3. Is immediate owner action needed?
+2. ถ้า CME Wall ย้ายตำแหน่ง → ประเมินว่าต้องปรับ Bias หรือ Key Level ไหม
+3. If positions are open — should owner HOLD or REVIEW?
+4. Is immediate owner action needed?
 
 Output ONLY this JSON:
 {{
