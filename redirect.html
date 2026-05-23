@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Midas</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #0d0d0d;
+      font-family: 'Segoe UI', sans-serif;
+      color: #f0c040;
+    }
+    #msg { font-size: 1.4rem; letter-spacing: 0.05em; opacity: 0; transition: opacity 0.5s; }
+    #msg.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div id="msg">Connecting to Midas...</div>
+  <script>
+    const GIST_URL = 'https://gist.githubusercontent.com/Huzp79/44776511f85fbbd6e9ab314c7db09135/raw/midas_url.txt';
+    const msg = document.getElementById('msg');
+
+    const showMsg = setTimeout(() => msg.classList.add('visible'), 5000);
+
+    fetch(GIST_URL + '?t=' + Date.now())
+      .then(r => r.text())
+      .then(url => {
+        clearTimeout(showMsg);
+        const target = url.trim();
+        if (target) window.location.href = target;
+        else { msg.textContent = 'URL not found in Gist.'; msg.classList.add('visible'); }
+      })
+      .catch(() => {
+        clearTimeout(showMsg);
+        msg.textContent = 'Failed to fetch Midas URL.';
+        msg.classList.add('visible');
+      });
+  </script>
+</body>
+</html>
