@@ -9,7 +9,9 @@
       "Bash(python -c \"import flask; print\\('Flask', flask.__version__\\)\")",
       "Bash(pip install *)",
       "Bash(python -c \"import dashboard; print\\('OK - no import errors'\\)\")",
-      "Bash(python -c \"import dashboard; print\\('OK'\\)\")"
+      "Bash(python -c \"import dashboard; print\\('OK'\\)\")",
+      "Bash(python cme_scraper.py btc)",
+      "Bash(python cme_scraper.py btc_oi)"
     ]
   }
 }

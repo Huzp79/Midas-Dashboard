@@ -16,3 +16,9 @@
 - [[latest_data_USDCAD]] — USDCAD ล่าสุด
 - [[latest_data_USDCHF]] — USDCHF ล่าสุด
 - [[latest_data_ETHUSD]] — ETHUSD ล่าสุด
+
+
+## CME Daily
+- [[CME_Daily]]
+- 
+

@@ -236,7 +236,14 @@ def load_prev_snapshot():
 
 
 def fetch_cme_vol2vol_data():
-    """ดึง Vol2Vol data — รัน ทุกชั่วโมง (XX:00)"""
+    """ดึง Vol2Vol data — รัน ทุกชั่วโมง 08:00-00:00 BKK, วันจันทร์-ศุกร์เท่านั้น"""
+    bkk_now = datetime.now(timezone(timedelta(hours=7)))
+    if bkk_now.weekday() >= 5:
+        print("⏭️ [CME Vol2Vol]: ข้ามไป — CME ปิดวันเสาร์-อาทิตย์")
+        return None
+    if bkk_now.hour < 8:
+        print("⏭️ [CME Vol2Vol]: ข้ามไป — นอกเวลา 08:00-00:00 BKK")
+        return None
     try:
         import cme_scraper
         from playwright.sync_api import sync_playwright

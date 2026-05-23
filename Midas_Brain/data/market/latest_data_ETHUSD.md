@@ -1,38 +1,38 @@
 # 📊 MIDAS MARKET REPORT - ETHUSD
-**Updated:** 2026-05-23 02:03:56
+**Updated:** 2026-05-23 18:19:44
 
 ## ⏳ H4
-- **[SMC]:** Price=2120.46 | Swing=BEARISH | Internal=BEARISH
-  - 🟢 Bull OB(2090.89-2058.42) FVG(0.0-0.0)
-  - 🔴 Bear OB(2196.12-2183.52) FVG(2248.31-2231.08)
+- **[SMC]:** Price=2027.74 | Swing=BEARISH | Internal=BEARISH
+  - 🟢 Bull OB(2050.13-2019.41) FVG(0.0-0.0)
+  - 🔴 Bear OB(2151.69-2119.39) FVG(2110.05-2077.38)
 
 ## ⏳ H1
-- **[SMC]:** Price=2097.53 | Swing=BEARISH | Internal=BEARISH
+- **[SMC]:** Price=2029.04 | Swing=BEARISH | Internal=BEARISH
   - 🟢 Bull OB(0.0-0.0) FVG(0.0-0.0)
-  - 🔴 Bear OB(2146.06-2119.39) FVG(2185.05-2177.44)
-- **[MACD]:** Divergence=NONE | Hist=-3.71131
+  - 🔴 Bear OB(2069.58-2065.45) FVG(2116.87-2100.77)
+- **[MACD]:** Divergence=NONE | Hist=-3.98077
 
 ## ⏳ M30
-- **[SMC]:** Price=2097.53 | Swing=BEARISH | Internal=BEARISH
-  - 🟢 Bull OB(2110.09-2092.13) FVG(0.0-0.0)
-  - 🔴 Bear OB(2151.69-2140.06) FVG(2171.11-2170.5)
+- **[SMC]:** Price=2029.04 | Swing=BEARISH | Internal=BEARISH
+  - 🟢 Bull OB(0.0-0.0) FVG(0.0-0.0)
+  - 🔴 Bear OB(2069.58-2067.06) FVG(2112.57-2100.77)
 
 ## ⏳ M15
-- **[SMC]:** Price=2097.53 | Swing=BEARISH | Internal=BEARISH
-  - 🟢 Bull OB(2105.32-2092.13) FVG(0.0-0.0)
-  - 🔴 Bear OB(2127.54-2121.55) FVG(2115.63-2105.76)
-- **[LQ Sweep]:** has_sweep=True | sweep_type=BEARISH_SWEEP | bars_ago=2 | 🟢(0.0-0.0) 🔴(2105.76-2092.13)
-- **[Volume Profile]:** POC=2127.12854 | VAL=2114.12542 VAH=2137.24208
+- **[SMC]:** Price=2031.06 | Swing=BEARISH | Internal=BULLISH
+  - 🟢 Bull OB(2028.17-2024.48) FVG(0.0-0.0)
+  - 🔴 Bear OB(2069.58-2067.87) FVG(2105.18-2100.77)
+- **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(2104.36-2096.35) 🔴(2054.36-2051.3)
+- **[Volume Profile]:** POC=2119.76354 | VAL=2061.90417 VAH=2139.05
 
 ## ⏳ M5
-- **[SMC]:** Price=2097.53 | Swing=BEARISH | Internal=BEARISH
-  - 🟢 Bull OB(0.0-0.0) FVG(0.0-0.0)
-  - 🔴 Bear OB(2119.25-2117.96) FVG(0.0-0.0)
-- **[LQ Sweep]:** has_sweep=True | sweep_type=BEARISH_SWEEP | bars_ago=4 | 🟢(0.0-0.0) 🔴(2105.76-2092.13)
+- **[SMC]:** Price=2031.06 | Swing=BEARISH | Internal=BULLISH
+  - 🟢 Bull OB(2026.25-2024.48) FVG(0.0-0.0)
+  - 🔴 Bear OB(2069.58-2067.87) FVG(2052.64-2033.53)
+- **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(2028.72-2026.79) 🔴(0.0-0.0)
 
 ## ⏳ M1
-- **[SMC]:** Price=2094.02 | Swing=BEARISH | Internal=BEARISH
-  - 🟢 Bull OB(0.0-0.0) FVG(0.0-0.0)
-  - 🔴 Bear OB(2110.42-2109.71) FVG(2109.71-2108.59)
+- **[SMC]:** Price=2031.17 | Swing=BULLISH | Internal=BULLISH
+  - 🟢 Bull OB(2028.94-2028.39) FVG(0.0-0.0)
+  - 🔴 Bear OB(2057.23-2056.4) FVG(2052.33-2040.12)
 - **[Squeeze]:** State=OFF | is_firing_now=False | Direction=NONE | bars_since=-1
 
