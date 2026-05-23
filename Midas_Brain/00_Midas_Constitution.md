@@ -72,9 +72,21 @@ M1 → ENTRY (Precision)
 - If MSS (Market Structure Shift) confirmed after sweep → proceed to entry
 
 ### Step 4 — M1: Execute Entry
-- Look for FVG or OB retest on M1 after MSS
-- Entry must be within the identified OB/FVG zone
-- If price blows past the zone without reaction → ABORT
+
+Entry คือการตัดสินใจหน้างาน Midas เลือก Method ที่เหมาะสมที่สุดตาม Context ของตลาดตอนนั้น
+
+**Entry Methods ที่ใช้ได้:**
+1. **OB Retest** — เข้าที่ OB โดยตรง
+2. **FVG Fill** — รอราคากลับมาเติม FVG
+3. **MSS Break** — เข้าทันทีที่ MSS เกิด
+4. **Squeeze Fire** — รอ Squeeze ระเบิดแล้วเข้า
+5. **ผสมกัน** — ตามดุลยพินิจ
+
+**หลักการที่ต้องมีเสมอ:**
+- อยู่ใกล้ CME Wall (GOLD+BTC เท่านั้น)
+- HTF Structure ยังตรง Bias
+- SL ต้องมีเหตุผลรองรับเสมอ ไม่ใช่ตัวเลขสุ่ม
+- ถ้าไม่มี SL ที่สมเหตุสมผล → ABORT
 
 ---
 

@@ -1,5 +1,5 @@
 # 📊 MIDAS MARKET REPORT - BTCUSD
-**Updated:** 2026-05-24 03:31:04
+**Updated:** 2026-05-24 03:37:04
 
 ## ⏳ H4
 - **[SMC]:** Price=75415.55 | Swing=BULLISH | Internal=BEARISH
@@ -10,7 +10,7 @@
 - **[SMC]:** Price=75964.45 | Swing=BEARISH | Internal=BULLISH
   - 🟢 Bull OB(74733.25-74321.15) FVG(75750.95-75500.15)
   - 🔴 Bear OB(77876.55-77621.25) FVG(76068.85-76066.45)
-- **[MACD]:** Divergence=NONE | Hist=207.5631
+- **[MACD]:** Divergence=NONE | Hist=230.23967
 
 ## ⏳ M30
 - **[SMC]:** Price=75971.75 | Swing=BEARISH | Internal=BULLISH
@@ -25,14 +25,14 @@
 - **[Volume Profile]:** POC=75417.28021 | VAL=74933.13542 VAH=77146.36875
 
 ## ⏳ M5
-- **[SMC]:** Price=75971.75 | Swing=BULLISH | Internal=BULLISH
+- **[SMC]:** Price=76252.95 | Swing=BULLISH | Internal=BULLISH
   - 🟢 Bull OB(75914.05-75861.25) FVG(75626.35-75547.95)
-  - 🔴 Bear OB(76567.05-76479.35) FVG(76030.45-76027.45)
+  - 🔴 Bear OB(76567.05-76479.35) FVG(77177.35-77126.25)
 - **[LQ Sweep]:** has_sweep=False | sweep_type=NONE | bars_ago=-1 | 🟢(75976.75-75890.55) 🔴(0.0-0.0)
 
 ## ⏳ M1
-- **[SMC]:** Price=76020.45 | Swing=BULLISH | Internal=BEARISH
-  - 🟢 Bull OB(75945.65-75922.45) FVG(75835.25-75812.75)
-  - 🔴 Bear OB(76133.55-76093.45) FVG(0.0-0.0)
+- **[SMC]:** Price=76368.15 | Swing=BULLISH | Internal=BULLISH
+  - 🟢 Bull OB(75998.65-75971.75) FVG(76182.95-76046.15)
+  - 🔴 Bear OB(0.0-0.0) FVG(0.0-0.0)
 - **[Squeeze]:** State=OFF | is_firing_now=False | Direction=NONE | bars_since=-1
 
