@@ -1,44 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Midas</title>
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background: #0d0d0d;
-      font-family: 'Segoe UI', sans-serif;
-      color: #f0c040;
-    }
-    #msg { font-size: 1.4rem; letter-spacing: 0.05em; opacity: 0; transition: opacity 0.5s; }
-    #msg.visible { opacity: 1; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Midas</title>
+<style>
+  body {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: #0d1117;
+    font-family: 'Segoe UI', sans-serif;
+    color: #fff;
+  }
+  .card {
+    background: #161b22;
+    border: 1px solid #2d3748;
+    border-radius: 16px;
+    padding: 48px 40px;
+    text-align: center;
+    max-width: 360px;
+    width: 90%;
+  }
+  .logo { font-size: 3rem; }
+  .title { font-size: 2rem; font-weight: 700; margin: 10px 0 4px; }
+  .sub { color: #868E96; font-size: .85rem; margin-bottom: 32px; }
+  .btn {
+    background: #f0883e;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+  }
+  .btn:active { background: #c96e2e; }
+  .status { color: #555; font-size: .78rem; margin-top: 16px; min-height: 18px; }
+</style>
 </head>
 <body>
-  <div id="msg">Connecting to Midas...</div>
-  <script>
-    const GIST_URL = 'https://gist.githubusercontent.com/Huzp79/44776511f85fbbd6e9ab314c7db09135/raw/midas_url.txt';
-    const msg = document.getElementById('msg');
-
-    const showMsg = setTimeout(() => msg.classList.add('visible'), 5000);
-
-    fetch(GIST_URL + '?t=' + Date.now())
-      .then(r => r.text())
-      .then(url => {
-        clearTimeout(showMsg);
-        const target = url.trim();
-        if (target) window.location.href = target;
-        else { msg.textContent = 'URL not found in Gist.'; msg.classList.add('visible'); }
-      })
-      .catch(() => {
-        clearTimeout(showMsg);
-        msg.textContent = 'Failed to fetch Midas URL.';
-        msg.classList.add('visible');
-      });
-  </script>
+<div class="card">
+  <div class="logo">🤖</div>
+  <div class="title">MIDAS</div>
+  <div class="sub">AI Trading Agent · SMC + CME</div>
+  <button class="btn" onclick="go()">🚀 Go to Dashboard</button>
+  <div class="status" id="st"></div>
+</div>
+<script>
+const GIST = 'https://gist.githubusercontent.com/Huzp79/44776511f85fbbd6e9ab314c7db09135/raw/midas_url.txt';
+function go() {
+  document.getElementById('st').textContent = 'กำลังเชื่อมต่อ...';
+  fetch(GIST + '?t=' + Date.now())
+    .then(r => r.text())
+    .then(url => {
+      const u = url.trim();
+      if (u.startsWith('http')) window.location.href = u;
+      else document.getElementById('st').textContent = '❌ ไม่พบ URL — Midas ยังไม่ได้รัน';
+    })
+    .catch(() => {
+      document.getElementById('st').textContent = '❌ เชื่อมต่อไม่ได้';
+    });
+}
+</script>
 </body>
 </html>
